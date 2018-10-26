@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">elRepoio</string>
+    <string name="service_type">_elrepoio._tcp.</string>
+    <string name="service_name">elrepoio</string>
+</resources>

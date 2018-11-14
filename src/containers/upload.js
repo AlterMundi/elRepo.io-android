@@ -1,9 +1,8 @@
 import React, { Component } from "react";
-import { View , ScrollView, StyleSheet} from "react-native";
+import { View , ScrollView, StyleSheet } from "react-native";
 import { connect } from "react-redux"
-import {  Text, Paragraph, Title, Card } from 'react-native-paper';
-import { AppBar, } from "../components/appbar";
-
+import { TextInput, Button } from 'react-native-paper';
+import { AppBar  } from "../components/appbar";
 import { bindActionCreators } from "redux";
 import apiActions from "../redux/api/actions"
 import { fileUploader } from '../helpers/fileUploader'
@@ -51,11 +50,36 @@ class UploadContainer extends Component {
 
   render() {
     return (
-          <View>
+          <View  style={styles.container}>
               <AppBar title={'elRepo.io'} subtitle={'Publicar contenido'} />
-                
+              <ScrollView style={styles.container}>
+                <View style={styles.content}>
+                    <TextInput
+                            style={styles.input}
+                            label='Título'
+                        />
+                    <TextInput
+                        style={styles.input}
+                        label='Descripción'
+                        numberOfLines={4}
+                    />
+                    
+                    <Button 
+                        style={styles.input}
+                        icon="file-upload"
+                        mode="contained"
+                        onPress={() => console.log('Pressed')}>
+                            Agregar archivos
+                    </Button>
 
-                
+                    <Button 
+                        mode={"outlined"}
+                        icon="share"
+                        onPress={() => console.log('Pressed')}>
+                            Publicar
+                    </Button>
+                </View>
+              </ScrollView>  
           </View>
     );
   }
@@ -64,24 +88,21 @@ class UploadContainer extends Component {
 const styles = StyleSheet.create({
     container: {
       flex: 1,
-      height: '100%'
     },
     content: {
-      padding: 4,
+      padding: 16,
     },
-    card: {
-      margin: 8,
+    input: {
+      marginBottom: 16,
     },
   });
   
-
-
 export const Upload = connect(
     state => ({
         sharedFolder: state.Api.folder.filename,
     }),
     dispatch => ({
-        publish: bindActionCreators(actions.createPost, dispatch)
+        publish: bindActionCreators(apiActions.createPost, dispatch)
     })
   
 )(UploadContainer)

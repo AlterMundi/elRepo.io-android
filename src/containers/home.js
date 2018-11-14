@@ -70,7 +70,7 @@ class HomeContainer extends Component {
   render() {
     return (
       <View style={styles.container}>
-        <AppBar title={'elRepo.io'} subtitle={'Publicaciones'} />
+        <AppBar title={'elRepo.io'} subtitle={'Publicaciones'} searchIcon={true} />
           <ScrollView style={styles.container}>
             {this.props.posts.map(post => (
                     <PostCard key={post.id} post={post}  />

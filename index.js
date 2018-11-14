@@ -1,7 +1,36 @@
-/** @format */
+import { Navigation } from "react-native-navigation";
+import Sidebar from './src/containers/sidebar';
+import { store} from './src/redux/store';
+import { registerPages } from './src/RootNavigator'
+import { Provider } from 'react-redux';
 
-import {AppRegistry} from 'react-native';
-import App from './App';
-import {name as appName} from './app.json';
+registerPages(store, Provider)
+Navigation.registerComponent(`navigation.elRepoIO.drawer`, () => Sidebar);
 
-AppRegistry.registerComponent(appName, () => App);
+Navigation.events().registerAppLaunchedListener(() => {
+
+
+    Navigation.setRoot({
+        root: {
+            sideMenu: {
+                id: "SideMenu",
+                left: {
+                  component: {
+                      id: "Drawer",
+                      name: "navigation.elRepoIO.drawer"
+                  }
+                },
+                center: {
+                    stack: {
+                        id:'App',
+                        children: [{
+                            component: {
+                                name: "elRepoIO.home",
+                            }
+                        }]
+                    }, 
+                }
+            }
+        }
+    });
+});

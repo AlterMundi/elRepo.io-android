@@ -15,6 +15,7 @@ export class AppBar extends Component {
       this._onSearch = this._onSearch.bind(this);
       this._onIconPress = this._onIconPress.bind(this);
       this._onChangeText = this._onChangeText.bind(this);
+      this._toggleSearch = this._toggleSearch.bind(this);
     }
 
     _onIconPress() {
@@ -26,9 +27,12 @@ export class AppBar extends Component {
       this.props.onSearchTextChange ? this.props.onSearchTextChange(text): false;
     }
 
-    _onSearch() {
-      this.props.onSearch? this.props.onSearch(this.state.searchText): false;
+    _toggleSearch() {
       this.setState({showSearch: !this.state.showSearch, searchText: undefined})
+    }
+    _onSearch() {
+      typeof this.props.onSearch !== 'undefined' ? this.props.onSearch(this.state.searchText): false;
+      this._toggleSearch()
     }
 
     _onMore() {
@@ -43,7 +47,6 @@ export class AppBar extends Component {
 
   render() {
     const searchTheme = {...DefaultTheme, colors: {...DefaultTheme.colors, text: '#fff', placeholder: "rgba(255,255,255,0.7)",backgroundColor: DefaultTheme.colors.primary}};
-    console.log(searchTheme)
     return (
       <View>
         <Appbar.Header >
@@ -52,7 +55,7 @@ export class AppBar extends Component {
             subtitle={this.props.subtitle}
           >
           </Appbar.Content>
-          {this.props.searchIcon?<Appbar.Action icon="search" onPress={this._onSearch} />: false }
+          {this.props.searchIcon?<Appbar.Action icon="search" onPress={this._toggleSearch} />: false }
           <Appbar.Action icon="more-vert" onPress={this._onMore} />
         </Appbar.Header>
         { this.state.showSearch === true
@@ -63,7 +66,7 @@ export class AppBar extends Component {
             onIconPress={this._onIconPress}
             placeholder={"Buscar..."} 
             value={this.state.searchText}
-            onChangeText={this.props._onChangeText}/>
+            onChangeText={this._onChangeText}/>
           : false }
       </View>
     );

@@ -1,5 +1,5 @@
 import { store } from '../redux/store';
-//require('event-source-polyfill/src/eventsource')
+import EventSource from './events';
 
 const api = (url, port) => {
     const apiHttp = (path, data, method, headers) => 
@@ -38,7 +38,7 @@ const api = (url, port) => {
             }
             else if(version === 'stream') {
                 const {Api} = store.getState();
-                const evtSource = fetch(url+':'+port+request.payload.path, {
+                const evtSource = EventSource(url+':'+port+request.payload.path, {
                     data: request.payload.data,
                     headers: {
                         'Authorization': 'Basic ' + btoa(Api.user.mLocationId + ":" + Api.password)

@@ -1,11 +1,12 @@
 import React, { Component } from "react";
 import { View , ScrollView, StyleSheet } from "react-native";
 import { connect } from "react-redux"
-import { TextInput, Button } from 'react-native-paper';
+import { TextInput, Button , Text} from 'react-native-paper';
 import { AppBar  } from "../components/appbar";
 import { bindActionCreators } from "redux";
 import apiActions from "../redux/api/actions"
 import { fileUploader } from '../helpers/fileUploader'
+import { Navigation } from "react-native-navigation";
 
 
 class UploadContainer extends Component {
@@ -39,7 +40,12 @@ class UploadContainer extends Component {
 
     //Fake loading status
         this.setState({uploading: !this.state.uploading})
-        setTimeout(()=>this.setState({uploading: !this.state.uploading}), 1000)
+        setTimeout(()=>{
+            this.setState({uploading: !this.state.uploading});
+            Navigation.push('App', {
+                component: { name: 'elRepoIO.home' },
+              })
+        }, 3000)
     }
 
     selectFiles() {
@@ -52,45 +58,65 @@ class UploadContainer extends Component {
     return (
           <View  style={styles.container}>
               <AppBar title={'elRepo.io'} subtitle={'Publicar contenido'} />
-              <ScrollView style={styles.container}>
-                <View style={styles.content}>
-                    <TextInput
+                {this.state.uploading
+                ? (
+                    <View style={styles.loading}>
+                        <Text>Publicando contenido</Text>
+                        <Button icon="" loading></Button>
+                    </View>
+                )
+                 : (<ScrollView style={styles.scrollView}>
+                    <View style={styles.content}>
+                        <TextInput
+                                onChangeText={(title)=>this.setState({title})}
+                                value={this.state.title}
+                                style={styles.input}
+                                label='Título'
+                            />
+                        <TextInput
+                            onChangeText={(description)=>this.setState({description})}
+                            value={this.state.description}
                             style={styles.input}
-                            label='Título'
+                            label='Descripción'
+                            numberOfLines={4}
                         />
-                    <TextInput
-                        style={styles.input}
-                        label='Descripción'
-                        numberOfLines={4}
-                    />
-                    
-                    <Button 
-                        style={styles.input}
-                        icon="file-upload"
-                        mode="contained"
-                        onPress={() => console.log('Pressed')}>
-                            Agregar archivos
-                    </Button>
+                        
+                        <Button 
+                            style={styles.input}
+                            icon="file-upload"
+                            mode="contained"
+                            onPress={() => console.log('Pressed')}>
+                                Agregar archivos
+                        </Button>
 
-                    <Button 
-                        mode={"outlined"}
-                        icon="share"
-                        onPress={() => console.log('Pressed')}>
-                            Publicar
-                    </Button>
-                </View>
-              </ScrollView>  
-          </View>
+                        <Button 
+                            mode={"outlined"}
+                            icon="share"
+                            onPress={this.publish}>
+                                Publicar
+                        </Button>
+                    </View>
+                 </ScrollView>) }
+            </View>
     );
   }
 }
 
 const styles = StyleSheet.create({
     container: {
-      flex: 1,
+      flex: 1
+    },
+    scrollView: {
+        flex: 1,
+        flexDirection: 'column',
     },
     content: {
       padding: 16,
+    },
+    loading: {
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center'
     },
     input: {
       marginBottom: 16,

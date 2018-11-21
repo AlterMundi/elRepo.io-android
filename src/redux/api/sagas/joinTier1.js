@@ -6,19 +6,19 @@ const apiHttp = httpApi(config.api.url,config.api.port);
 
 export const joinTiers = function*() {
     yield takeEvery('JOIN_TIER', function*(action){
-        
+        console.log(action.payload.cert.replace(/\n/g,'\\n'))
         try {
             const result = yield fetch(action.payload.url, {
-                body: {
-                    invite: action.payload.cert,
-                },
+                body: JSON.stringify({
+                    invite: action.payload.cert.replace(/\n/g,'\\n')
+                }),
                 headers: {'content-type': 'application/json'},
                 method: 'POST'
             }).then(res => res.json())
 
             yield put({type: 'JOIN_TIER_SUCCESS', payload: result });
         } catch(e) {
-            yield put({type: 'JOIN_TIER_FAILD', payload: { error: e, dataSend: action.payload.cert }});
+            yield put({type: 'JOIN_TIER_FAILD', payload: { error: e, dataSend: action.payload.cert}});
         }
     });
     

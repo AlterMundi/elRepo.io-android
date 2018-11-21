@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import { View , ScrollView, StyleSheet} from "react-native";
 import { connect } from "react-redux"
-import {  Text, Paragraph, Title, Card } from 'react-native-paper';
+import {  Text, Paragraph, Title, Card, Headline } from 'react-native-paper';
 import { AppBar, } from "../components/appbar";
 
 import { bindActionCreators } from "redux";
@@ -33,12 +33,16 @@ class SearchContainer extends Component {
   
   render() {
     return (
-          <View>
-              <AppBar title={'elRepo.io'} subtitle={'Publicaciones'} />
-                
-                {this.props.posts.map(post => (
-                        <PostCard key={post.id} post={post} onDownload={console.log} />
-                ))}
+          <View style={styles.container}>
+              <AppBar title={'elRepo.io'} subtitle={'Resultados de busqueda'} />
+                <ScrollView style={styles.container}>
+                  <View style={styles.content}>
+                    <Headline>  {this.props.search}</Headline>
+                    {this.props.results.map(post => (
+                      <PostCard key={post.id} post={post} onDownload={console.log} />
+                    ))}
+                    </View>
+                </ScrollView>
                 
           </View>
     );
@@ -47,11 +51,10 @@ class SearchContainer extends Component {
 
 const styles = StyleSheet.create({
     container: {
-      flex: 1,
-      height: '100%'
+      flex: 1
     },
     content: {
-      padding: 4,
+      padding: 16,
     },
     card: {
       margin: 8,
@@ -62,13 +65,8 @@ const styles = StyleSheet.create({
 
 export const Search = connect(
   (state) => ({
-    stauts: state.Api.login? 'Online': 'Logged out',
-    userId: state.Api.user? state.Api.user.mLocationName: '',
-    friends: state.Api.peers? state.Api.peers : [],
-    user: state.Api.user,
-    channels: state.Api.channels,
-    channelsInfo: state.Api.channelsInfo,
-    posts: (Object.values(state.Api.posts) || []).filter(validsPosts)
+    results: state.Api.results || [],
+    search: state.Api.search || ''
   }),
   (dispatch) => ({
     updateChannels: bindActionCreators(apiActions.updateChannels, dispatch),

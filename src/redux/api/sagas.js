@@ -237,32 +237,60 @@ export const search = function*(){
     yield takeEvery('START_SYSTEM' , function*(){
     })
 
-    let resultSockets = null;
+    let resultSocketsRemote = null;
 
-    //START SEARCH
+    //START SEARCH  REMOTE
     yield takeEvery('SEARCH_NEW', function*(action) {
         const jsonData = JSON.stringify({
             matchString: action.payload
         });
         
-        if(resultSockets !== null) {
-            resultSockets.close();
-            resultSockets = null;
+        if(resultSocketsRemote !== null) {
+            resultSocketsRemote.close();
+            resultSocketsRemote = null;
         }
 
-        resultSockets = yield apiHttp.send('stream', {
+        resultSocketsRemote = yield apiHttp.send('stream', {
                 type: 'SEARCH_NEW',
                 payload: {
                     path: `/rsGxsChannels/turtleSearchRequest?jsonData=${encodeURIComponent(jsonData)}`
                 }
             })
 
-        resultSockets.onmessage = (eventData) => {
+        resultSocketsRemote.addEventListener('message', (eventData) => {
             if(typeof eventData.data.retval === 'undefined')
                 store.dispatch({type: 'SEARCH_GET_RESULTS_SUCCESS', payload: JSON.parse(eventData.data)})
+        })
+    })
+
+
+    let resultSocketsLocal = null;
+    //START SEARCH  REMOTE
+    yield takeEvery('SEARCH_NEW', function*(action) {
+        const jsonData = JSON.stringify({
+            matchString: action.payload
+        });
+        
+        if(resultSocketsLocal !== null) {
+            resultSocketsLocal.close();
+            resultSocketsLocal = null;
         }
+
+        resultSocketsLocal = yield apiHttp.send('stream', {
+                type: 'SEARCH_NEW',
+                payload: {
+                    path: `/rsGxsChannels/localSearchRequest?jsonData=${encodeURIComponent(jsonData)}`
+                }
+            })
+
+        resultSocketsLocal.addEventListener('message', (eventData) => {
+            if(typeof eventData.data.retval === 'undefined')
+                store.dispatch({type: 'SEARCH_GET_RESULTS_SUCCESS', payload: JSON.parse(eventData.data)})
+        })
     })
 }
+
+
 
 export const contentMagnament = function*() {
     
@@ -321,14 +349,14 @@ export const contentMagnament = function*() {
 }
 
 export const discoveryService = function*() {
-    // yield takeEvery('START_DISCOVERY',function*({type, payload}){
-    //     try {
-    //         const result = yield userDiscovery.startService(payload)
-    //         console.log({discovery: result})
-    //     } catch(e){
-    //         console.log({discovery: e})
-    //     }
-    // })
+     yield takeEvery('START_DISCOVERY',function*({type, payload}){
+         try {
+             const result = yield userDiscovery.startService(payload)
+             console.log({discovery: result})
+         } catch(e){
+             console.log({discovery: e})
+         }
+     })
 
     let certs = [];
     yield takeEvery('USER_DISCOVERY_RESULT',function*({type, payload}){

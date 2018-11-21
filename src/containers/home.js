@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import { View , ScrollView, StyleSheet} from "react-native";
 import { connect } from "react-redux"
-import {  List, Paragraph, Title, Card, Button } from 'react-native-paper';
+import {  List, Title, Card } from 'react-native-paper';
 import { AppBar, } from "../components/appbar";
 import ParsedText from 'react-native-parsed-text';
 
@@ -9,6 +9,7 @@ import filesize from "filesize"
 
 import { bindActionCreators } from "redux";
 import apiActions from "../redux/api/actions"
+import { Navigation } from "react-native-navigation";
 
 const validsPosts = (post) => post.mMeta.mMsgName !== '' && post.mMsg !== ''
 
@@ -16,6 +17,7 @@ const FileList = ({files}) => (
   <View>
     {files.map(file => (
         <List.Item
+          key={file.mHash}
           style={styles.list}
           title={file.mName}
           description={filesize(file.mSize)}
@@ -25,10 +27,18 @@ const FileList = ({files}) => (
     ))}
   </View>)
 
-class PostCard extends Component  {
- 
-  handleHastag(hastagl){
+class PostCardComponent extends Component  {
 
+  constructor(props) {
+    super(props);
+    this.handleHastag = this.handleHastag.bind(this);
+  }
+ 
+  handleHastag(hashtag){
+    this.props.searchContent(hashtag);
+    Navigation.push('App', {
+      component: { name: 'elRepoIO.search' },
+    })
   }
 
   render() {
@@ -53,10 +63,17 @@ class PostCard extends Component  {
     )
   }
 }
+ const PostCard = connect(
+   (state) => ({}),
+   (dispatch) => ({
+    searchContent: bindActionCreators(apiActions.newSearch, dispatch)
+   })
+  )(PostCardComponent)
 
 class HomeContainer extends Component {
     constructor(props) {
         super(props);
+        this.handleSearch = this.handleSearch.bind(this);
     }
   static options (passProps) {
       return {
@@ -66,11 +83,18 @@ class HomeContainer extends Component {
           }
       }
   }
+
+  handleSearch(value){
+    this.props.searchContent(value);
+    Navigation.push('App', {
+      component: { name: 'elRepoIO.search' },
+    })
+  }
   
   render() {
     return (
       <View style={styles.container}>
-        <AppBar title={'elRepo.io'} subtitle={'Publicaciones'} searchIcon={true} />
+        <AppBar title={'elRepo.io'} subtitle={'Publicaciones'} searchIcon={true} onSearch={this.handleSearch} />
           <ScrollView style={styles.container}>
             {this.props.posts.map(post => (
                     <PostCard key={post.id} post={post}  />
@@ -117,6 +141,7 @@ export const Home = connect(
     posts: (Object.values(state.Api.posts) || []).filter(validsPosts)
   }),
   (dispatch) => ({
+    searchContent: bindActionCreators(apiActions.newSearch, dispatch),
     updateChannels: bindActionCreators(apiActions.updateChannels, dispatch),
     loadExtraData: bindActionCreators(apiActions.loadExtraData, dispatch),
     loadChannelContent: bindActionCreators(apiActions.loadChannelContent, dispatch)

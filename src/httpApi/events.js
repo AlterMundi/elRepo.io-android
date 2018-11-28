@@ -35,7 +35,7 @@ var EventSource = function (url, options) {
 
       // NOTE: IE7 and upwards support
       var xhr = new XMLHttpRequest();
-      xhr.open('GET', eventsource.URL, true);
+      xhr.open('POST', eventsource.URL, true);
       if (eventsource.OPTIONS && eventsource.OPTIONS.headers) {
         Object.keys(eventsource.OPTIONS.headers).forEach(key => {
           xhr.setRequestHeader(key, eventsource.OPTIONS.headers[key]);
@@ -45,6 +45,7 @@ var EventSource = function (url, options) {
       xhr.setRequestHeader('Cache-Control', 'no-cache');
       // we must make use of this on the server side if we're working with Android - because they don't trigger
       // readychange until the server connection is closed
+      xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
       xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
 
       if (lastEventId != null) xhr.setRequestHeader('Last-Event-ID', lastEventId);
@@ -116,7 +117,7 @@ var EventSource = function (url, options) {
           { type: 'error', message: this.responseText });
       }
 
-      xhr.send();
+      xhr.send(JSON.stringify(eventsource.OPTIONS.data || {}));
 
       setTimeout(function () {
         if (true || xhr.readyState == 3) xhr.abort();

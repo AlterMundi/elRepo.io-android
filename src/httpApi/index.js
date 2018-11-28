@@ -38,7 +38,7 @@ const api = (url, port) => {
             }
             else if(version === 'stream') {
                 const {Api} = store.getState();
-                const evtSource = EventSource(url+':'+port+request.payload.path, {
+                const evtSource = new EventSource(url+':'+port+request.payload.path, {
                     data: request.payload.data,
                     headers: {
                         'Authorization': 'Basic ' + btoa(Api.user.mLocationId + ":" + Api.password)

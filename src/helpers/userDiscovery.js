@@ -27,7 +27,7 @@ export const userDiscovery = {
                 Handshake.receiveKey(e.host, e.port);
             });
 
-            Handshake.startServer(key.replace(/\n/g,'\\n'));
+            Handshake.startServer(key.replace(/\n/g,'\\n')+'\n');
         }
     })
 }

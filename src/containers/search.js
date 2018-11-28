@@ -1,22 +1,14 @@
 import React, { Component } from "react";
-import { View , ScrollView, StyleSheet} from "react-native";
+import { View , ScrollView, StyleSheet } from "react-native";
 import { connect } from "react-redux"
-import {  Text, Paragraph, Title, Card, Headline } from 'react-native-paper';
-import { AppBar, } from "../components/appbar";
+import {  Headline } from 'react-native-paper';
+import { AppBar } from "../components/appbar";
+import { PostCard } from "../components/postCard";
 
 import { bindActionCreators } from "redux";
 import apiActions from "../redux/api/actions"
 
 const validsPosts = (post) => post.mMeta.mMsgName !== '' && post.mMsg !== ''
-
-const PostCard = ({post}) =>  (
-  <Card  style={styles.card}>
-      <Card.Content>
-          <Title>{post.mMeta.mMsgName}</Title>
-          <Paragraph> {post.mMsg}</Paragraph>
-      </Card.Content>
-  </Card>
-)
 
 class SearchContainer extends Component {
     constructor(props) {
@@ -38,8 +30,8 @@ class SearchContainer extends Component {
                 <ScrollView style={styles.container}>
                   <View style={styles.content}>
                     <Headline>  {this.props.search}</Headline>
-                    {this.props.results.map(post => (
-                      <PostCard key={post.id} post={post} onDownload={console.log} />
+                    {this.props.results.map((post, key) => (
+                      <PostCard key={key} post={post} />
                     ))}
                     </View>
                 </ScrollView>
@@ -54,18 +46,15 @@ const styles = StyleSheet.create({
       flex: 1
     },
     content: {
-      padding: 16,
-    },
-    card: {
-      margin: 8,
-    },
+      padding: 4,
+    }
   });
   
 
 
 export const Search = connect(
   (state) => ({
-    results: state.Api.results || [],
+    results: (Object.values(state.Api.posts) || []).filter(validsPosts),
     search: state.Api.search || ''
   }),
   (dispatch) => ({

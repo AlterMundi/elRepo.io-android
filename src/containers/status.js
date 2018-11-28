@@ -29,7 +29,7 @@ class StatusContainer extends Component {
                         <Paragraph> {this.props.userId}</Paragraph>
                         <Title>Contactos:</Title> 
                             { this.props.friends.map(friend => (
-                                <Text key={friend.id}>{friend.name} ({friend.state === 1? 'online': 'offline' })</Text>
+                                <Text key={friend.id}>{friend.name} ({friend.status === true ? 'online': 'offline' })</Text>
                             )) }
                     </Card.Content>
                 </Card>
@@ -55,7 +55,7 @@ const styles = StyleSheet.create({
 
 export const Status = connect(
   (state) => ({
-    stauts: state.Api.login? 'Listo': 'Conectado',
+    stauts: state.Api.login? 'Listo': 'Iniciando',
     userId: state.Api.user? state.Api.user.mLocationName: '',
     friends: state.Api.peers? state.Api.peers : [],
     

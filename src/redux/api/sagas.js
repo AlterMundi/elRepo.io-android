@@ -146,7 +146,6 @@ export const channels = function*() {
             yield put({type: 'CREATE_USER_CHANNEL'})
         }
         while(action.payload.channels.length > a) {
-            console.log(a, action.payload.channels[a].mGroupName)
             if(
                 //If is open repo channel
                 (action.payload.channels[a].mGroupName.indexOf('_repo') !== -1) &&
@@ -205,19 +204,19 @@ export const peers = function*() {
         })
     })
 
-   /*
    yield takeEvery('LOADPEER_INFO_SUCCESS', function*(action){
-        yield apiCall('PEER_STATUS','/rsPeers/isOnline',{
+        const result = yield apiCall('PEER_STATUS','/rsPeers/isOnline',{
                     sslId: action.payload.det.id
         })
+        yield put({type: 'CHANGE_PEER_STATUS', payload: { id: action.payload.det.id, status: result.retval}})
     })
-    */
 
     let joinTier = 0;
     yield takeEvery('PEERS_SUCCESS', function*(action){
         if(joinTier !== 0) return;
         joinTier = 1;
-        if (typeof action.payload.sslIds !== 'undefined' && action.payload.sslIds.length === 0){
+        //if (typeof action.payload.sslIds !== 'undefined' && action.payload.sslIds.length === 0){
+        if(true){
             const api = yield select(state => state.Api)
             if (api.cert)
                 yield put({
@@ -241,9 +240,9 @@ export const search = function*(){
 
     //START SEARCH  REMOTE
     yield takeEvery('SEARCH_NEW', function*(action) {
-        const jsonData = JSON.stringify({
+        const data = {
             matchString: action.payload
-        });
+        };
         
         if(resultSocketsRemote !== null) {
             resultSocketsRemote.close();
@@ -253,7 +252,8 @@ export const search = function*(){
         resultSocketsRemote = yield apiHttp.send('stream', {
                 type: 'SEARCH_NEW',
                 payload: {
-                    path: `/rsGxsChannels/turtleSearchRequest?jsonData=${encodeURIComponent(jsonData)}`
+                    path: '/rsGxsChannels/turtleSearchRequest',
+                    data
                 }
             })
 
@@ -267,9 +267,9 @@ export const search = function*(){
     let resultSocketsLocal = null;
     //START SEARCH  REMOTE
     yield takeEvery('SEARCH_NEW', function*(action) {
-        const jsonData = JSON.stringify({
+        const data = {
             matchString: action.payload
-        });
+        };
         
         if(resultSocketsLocal !== null) {
             resultSocketsLocal.close();
@@ -279,7 +279,8 @@ export const search = function*(){
         resultSocketsLocal = yield apiHttp.send('stream', {
                 type: 'SEARCH_NEW',
                 payload: {
-                    path: `/rsGxsChannels/localSearchRequest?jsonData=${encodeURIComponent(jsonData)}`
+                    path: '/rsGxsChannels/localSearchRequest',
+                    data
                 }
             })
 
@@ -338,12 +339,20 @@ export const contentMagnament = function*() {
         })
     })
 
-    yield takeEvery('DOWNLOAD_FILE', function*({action, payload}){
-        yield apiCall('DOWNLOAD_FILE', '/rsFiles/FileRequest', payload)
+    yield takeEvery('DOWNLOAD_FILE', function*({type, payload}){
+        yield apiCall('DOWNLOAD_FILE', '/rsFiles/FileRequest', {
+            fileName: payload.mName,
+            hash: payload.mHash,
+            size: payload.mSize
+        })
     })
 
-    yield takeEvery(actions.CHECK_FILE_STATUS, function*({action, payload}){
-        apiCall(actions.CHECK_FILE_STATUS, '/rsFiles/FileDetails', { hintflags: 0x00000004, hash: payload.mHash})
+    yield takeEvery(actions.CHECK_FILE_STATUS, function*({type, payload}){
+        apiCall(actions.CHECK_FILE_STATUS, '/rsFiles/FileDetails', { hintflags: 128, hash: payload.mHash})
+    })
+
+    yield takeEvery(actions.GET_FILE_INFO, function*({type, payload}){
+        apiCall(actions.GET_FILE_INFO, '/rsFiles/alreadyHaveFile', { hash: payload.mHash})
     })
 
 }

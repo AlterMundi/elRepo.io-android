@@ -23,7 +23,8 @@ const initState = {
     folder: {},
     downloading: [],
     alreadyDownloaded: [],
-    filesInfo: {}
+    files: {},
+    fileInfo: {}
 }
 
 export default function apiReducer(state = initState, action) {
@@ -56,6 +57,14 @@ export default function apiReducer(state = initState, action) {
                 ...state,
                 peers: state.peers.map(peer => {
                     return (peer.id === action.payload.det.id)? action.payload.det: peer;
+                })
+            }
+        }
+        case 'CHANGE_PEER_STATUS': {
+            return {
+                ...state,
+                peers: state.peers.map(peer => {
+                    return (peer.id === action.payload.id)? {...peer, status: action.payload.status}: peer;
                 })
             }
         }
@@ -98,7 +107,7 @@ export default function apiReducer(state = initState, action) {
             return {
                 ...state,
                 search: action.payload,
-                results:[]
+                results:{}
             }
         case 'SEARCH_GET_RESULTS_SUCCESS':
             if(typeof action.payload.result === 'undefined') { return state };
@@ -128,8 +137,21 @@ export default function apiReducer(state = initState, action) {
         case actions.CHECK_FILE_STATUS_SUCCESS:
             return {
                 ...state,
-                filesInfo: {
-                    ...state.filesInfo,
+                files: {
+                    ...state.files,
+                    [action.payload.info.hash]: action.payload.info
+                }
+            }
+        case actions.GET_FILE_INFO: 
+            return {
+                ...state,
+                fileInfo: action.payload
+            }
+        case actions: GET_FILE_STATUS_SUCCESS:
+            return {
+                ...state,
+                files: {
+                    ...state.files,
                     [action.payload.info.hash]: action.payload.info
                 }
             }

@@ -21,6 +21,9 @@ export const actions = {
     CHECK_FILE_STATUS: 'CHECK_FILE_STATUS',
     CHECK_FILE_STATUS_SUCCESS: 'CHECK_FILE_STATUS_SUCCESS',
     CHECK_FILE_STATUS_FAILD: 'CHECK_FILE_STATUS_FAILD',
+    GET_FILE_INFO: 'GET_FILE_INFO',
+    GET_FILE_INFO_SUCCESS: 'GET_FILE_INFO_SUCCESS',
+    GET_FILE_INFO_FAILD: 'GET_FILE_INFO_FAILD',
 
     updateSearchResults: ( id ) => (dispatch) => {
         dispatch({
@@ -100,6 +103,10 @@ export const actions = {
         getState().Api.alreadyDownloaded.indexOf(mFile.mHash) !== -1
             ? false
             : dispatch({ type: actions.CHECK_FILE_STATUS, payload: mFile })
+    },
+
+    getFileInfo: (mFile) => dispatch => {
+        dispatch({type: actions.GET_FILE_INFO, payload: mFile})
     }
 }
 

@@ -12,7 +12,7 @@ export const joinTiers = function*() {
         try {
             const result = yield fetch(action.payload.url+ '/rsPeers/acceptInvite', {
                 body: JSON.stringify({
-                    invite: action.payload.cert
+                    invite: action.payload.certADD_FRIEND
                 }),
                 headers: {'content-type': 'application/json'},
                 method: 'POST'
@@ -44,7 +44,7 @@ export const joinTiers = function*() {
     yield takeEvery (['ADD_FRIEND'], function*({type, payload = {}}){
         try {
             const result = yield apiCall(type,'/rsPeers/acceptInvite',{
-                invite: payload.cert.replace(/\n/g,'\\n')
+                invite: payload.cert
             })
         } catch(e) {
             console.warn('Wrong cert', e, payload)

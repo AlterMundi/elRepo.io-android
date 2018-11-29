@@ -46,7 +46,7 @@ const styles = StyleSheet.create({
   },
 });
 
-export const DownloadStauts = connect(
+export const DownloadStatus = connect(
     (state) => ({
         downloading: state.Api.donwloading || []
     })

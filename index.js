@@ -8,8 +8,6 @@ registerPages(store, Provider)
 Navigation.registerComponent(`navigation.elRepoIO.drawer`, () => Sidebar);
 
 Navigation.events().registerAppLaunchedListener(() => {
-
-
     Navigation.setRoot({
         root: {
             sideMenu: {
@@ -17,7 +15,7 @@ Navigation.events().registerAppLaunchedListener(() => {
                 right: {
                     component: {
                         id: "DownloadStatus",
-                        name: "elRepoIO.downloadStauts"
+                        name: "elRepoIO.downloadStatus"
                     }
                   },
                 left: {

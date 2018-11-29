@@ -348,6 +348,7 @@ export const contentMagnament = function*() {
     })
 
     yield takeEvery(actions.CHECK_FILE_STATUS, function*({type, payload}){
+        //FiledDownloadChunk --> MEJOR!!!
         apiCall(actions.CHECK_FILE_STATUS, '/rsFiles/FileDetails', { hintflags: 128, hash: payload.mHash})
     })
 
@@ -359,9 +360,9 @@ export const contentMagnament = function*() {
         apiCall(actions.DOWNLOAD_STATUS, '/rsFiles/FileDownloads')
     })
 
-    yield takeEvery(actions.DOWNLOAD_STATUS_SUCCESS, function*({type, payload}) {
+    // yield takeEvery(actions.DOWNLOAD_STATUS_SUCCESS, function*({type, payload}) {
 
-    });
+    // });
 
     yield takeEvery('START_SYSTEM' , function*(){
         yield put({ type: 'DOWNLOAD_STATUS' })

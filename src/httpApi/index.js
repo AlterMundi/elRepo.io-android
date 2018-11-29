@@ -1,5 +1,6 @@
 import { store } from '../redux/store';
 import EventSource from './events';
+import Base64 from '../helpers/base64';
 
 const api = (url, port) => {
     const apiHttp = (path, data, method, headers) => 
@@ -18,7 +19,7 @@ const api = (url, port) => {
                 //Add auth headers
                 const {Api} = store.getState();
                 if (Api && Api.login === true) {
-                    headers.set('Authorization', 'Basic ' + btoa(Api.user.mLocationId + ":" + Api.password))
+                    headers.set('Authorization', 'Basic ' + Base64.btoa(Api.user.mLocationId + ":" + Api.password))
                 }
 
                 return apiHttp(request.payload.path, request.payload.data, request.payload.method || 'POST', headers)
@@ -41,7 +42,7 @@ const api = (url, port) => {
                 const evtSource = new EventSource(url+':'+port+request.payload.path, {
                     data: request.payload.data,
                     headers: {
-                        'Authorization': 'Basic ' + btoa(Api.user.mLocationId + ":" + Api.password)
+                        'Authorization': 'Basic ' + Base64.btoa(Api.user.mLocationId + ":" + Api.password)
                     }
                 });
                 res(evtSource);

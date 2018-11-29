@@ -355,6 +355,31 @@ export const contentMagnament = function*() {
         apiCall(actions.GET_FILE_INFO, '/rsFiles/alreadyHaveFile', { hash: payload.mHash})
     })
 
+    yield takeEvery(actions.DOWNLOAD_STATUS, function*({type, payload}){
+        apiCall(actions.DOWNLOAD_STATUS, '/rsFiles/FileDownloads')
+    })
+
+    yield takeEvery(actions.DOWNLOAD_STATUS_SUCCESS, function*({type, payload}) {
+
+    });
+
+    yield takeEvery('START_SYSTEM' , function*(){
+        yield put({ type: 'DOWNLOAD_STATUS' })
+        while(true) {
+            const winner = yield race({
+                stopped: take('DONWLOAD_STATUS_STOP'),
+                tick: call(wait, 10000)
+            })
+
+            if (!winner.stopped) {              
+                yield put({type: 'DOWNLOAD_STATUS'})
+            } else {
+                break
+            }
+        }
+    });
+
+
 }
 
 export const discoveryService = function*() {
@@ -374,6 +399,6 @@ export const discoveryService = function*() {
         if(state && certs.indexOf(payload.key) === -1) {
             yield put({type: 'ADD_FRIEND', payload: {cert: key}})
             //certs = [...certs, key]
-        }   
+        }
     })
 }

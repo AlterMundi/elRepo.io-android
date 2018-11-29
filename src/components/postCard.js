@@ -47,7 +47,7 @@ const FileList = ({files, onDownload}) => (
     handleDownload(file){
       this.props.fileInfo(file);
       Navigation.push('App', {
-        component: { name: 'elRepoIO.fileInfo' },
+        component: { name: 'elRepoIO.fileInfo' }
       })
     }
   

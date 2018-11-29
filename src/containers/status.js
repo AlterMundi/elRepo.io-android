@@ -1,9 +1,10 @@
 import React, { Component } from "react";
 import { View , ScrollView, StyleSheet} from "react-native";
 import { connect } from "react-redux"
-import {  Text, Paragraph, Title, Card } from 'react-native-paper';
+import {  Text, Paragraph, Title, Card, Button } from 'react-native-paper';
 import { AppBar, } from "../components/appbar";
-
+import { NSD } from 'react-native-nsd';
+import { Handshake}  from 'react-native-handshake'
 class StatusContainer extends Component {
     constructor(props) {
         super(props);
@@ -33,6 +34,10 @@ class StatusContainer extends Component {
                             )) }
                     </Card.Content>
                 </Card>
+                <Button style={styles.button} mode="contained" onPress={()=>NSD.discover()} >Discover</Button>
+                <Button style={styles.button}  mode="contained" onPress={()=>{Handshake.startServer(this.props.cert)}}>Srart server</Button>
+                <Button style={styles.button}  mode="contained" onPress={()=>{Handshake.stopServer()}}>Stop server</Button>
+                <Button style={styles.button}  mode="contained" onPress={()=>NSD.stopDiscovery()}>Stop Discovery</Button>
           </View>
     );
   }
@@ -46,6 +51,9 @@ const styles = StyleSheet.create({
     content: {
       padding: 4,
     },
+    button: {
+      margin: 5
+    },
     card: {
       margin: 8,
     },
@@ -56,6 +64,7 @@ const styles = StyleSheet.create({
 export const Status = connect(
   (state) => ({
     stauts: state.Api.login? 'Listo': 'Iniciando',
+    cert: (state.Api.cert || '').replace(/\n/g,'\\n')+'\n',
     userId: state.Api.user? state.Api.user.mLocationName: '',
     friends: state.Api.peers? state.Api.peers : [],
     

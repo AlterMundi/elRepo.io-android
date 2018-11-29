@@ -14,6 +14,12 @@ Navigation.events().registerAppLaunchedListener(() => {
         root: {
             sideMenu: {
                 id: "SideMenu",
+                right: {
+                    component: {
+                        id: "DownloadStatus",
+                        name: "elRepoIO.downloadStauts"
+                    }
+                  },
                 left: {
                   component: {
                       id: "Drawer",

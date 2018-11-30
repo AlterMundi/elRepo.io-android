@@ -6,7 +6,7 @@ import {
   Drawer,
   withTheme,
 } from 'react-native-paper';
-import { Navigation } from 'react-native-navigation';
+import { ThemeWrapper } from '../components/wrapper'
 import {connect } from 'react-redux';
 
 class DownloadItems extends React.Component {
@@ -19,7 +19,7 @@ class DownloadItems extends React.Component {
 
     const { colors } =  this.props.theme
     return (
-      <View style={[styles.drawerContent, { backgroundColor: colors.surface }]}>
+      <ThemeWrapper style={[styles.drawerContent, { backgroundColor: colors.surface }]}>
         <Drawer.Section title="Descargas">
           {(this.props.downloading || []).map((props) => (
             <Drawer.Item
@@ -28,7 +28,7 @@ class DownloadItems extends React.Component {
             />
           ))}
         </Drawer.Section>
-      </View>
+      </ThemeWrapper>
     );
   }
 }

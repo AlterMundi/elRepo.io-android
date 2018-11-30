@@ -2,12 +2,10 @@
 
 import * as React from 'react';
 import { View, StyleSheet, Platform } from 'react-native';
-import {
-  Drawer,
-  withTheme,
-  Colors,
-} from 'react-native-paper';
+import {  Drawer } from 'react-native-paper';
 import { Navigation } from 'react-native-navigation';
+import config from '../config';
+
 
 const DrawerItemsData = [
   { label: 'Publicaciones', icon: 'inbox', key: 0, goTo: 'elRepoIO.home' },
@@ -37,12 +35,9 @@ class DrawerItems extends React.Component {
   };
 
   render() {
-
-    const { colors } =  this.props.theme
-    console.log(this.props)
     return (
-      <View style={[styles.drawerContent, { backgroundColor: colors.surface }]}>
-        <Drawer.Section>
+      <View style={[styles.drawerContent, { backgroundColor: config.theme.colors.surface }]}>
+        <Drawer.Section theme={config.theme}>
           {DrawerItemsData.map((props) => (
             <Drawer.Item
               {...props}
@@ -70,4 +65,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default withTheme(DrawerItems);
+export default DrawerItems;

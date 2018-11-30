@@ -7,7 +7,7 @@ import { bindActionCreators } from "redux";
 import apiActions from "../redux/api/actions"
 import { fileUploader } from '../helpers/fileUploader'
 import { Navigation } from "react-native-navigation";
-
+import { ThemeWrapper } from '../components/wrapper'
 
 class UploadContainer extends Component {
     constructor(props) {
@@ -56,7 +56,7 @@ class UploadContainer extends Component {
 
   render() {
     return (
-          <View  style={styles.container}>
+          <ThemeWrapper  style={styles.container}>
               <AppBar title={'elRepo.io'} subtitle={'Publicar contenido'} />
                 {this.state.uploading
                 ? (
@@ -85,19 +85,20 @@ class UploadContainer extends Component {
                             style={styles.input}
                             icon="file-upload"
                             mode="contained"
+                            dark={true}
                             onPress={() => console.log('Pressed')}>
                                 Agregar archivos
                         </Button>
 
                         <Button 
-                            mode={"outlined"}
+                            mode={"text"}
                             icon="share"
                             onPress={this.publish}>
                                 Publicar
                         </Button>
                     </View>
                  </ScrollView>) }
-            </View>
+            </ThemeWrapper>
     );
   }
 }

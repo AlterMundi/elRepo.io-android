@@ -8,6 +8,7 @@ import { bindActionCreators } from "redux";
 import apiActions from "../redux/api/actions"
 import filesize from 'filesize'
 import { Navigation } from "react-native-navigation";
+import { ThemeWrapper } from '../components/wrapper'
 
 const getPostsByFileHash = (state) => {
     const hasFile = file => file.mHash === state.Api.fileInfo.mHash;
@@ -41,7 +42,7 @@ class FileInfoContainer extends Component {
   render() {
     const {fileInfo, posts} = this.props;
     return (
-          <View style={styles.container}>
+          <ThemeWrapper style={styles.container}>
               <AppBar title={'elRepo.io'} subtitle={'Información del archivo'} />
                 <ScrollView style={styles.container}>
                     <View style={styles.content}>
@@ -54,8 +55,7 @@ class FileInfoContainer extends Component {
                         {posts.map(post => <PostCard post={post} key={post.id} />)} */}
                     </View>
                 </ScrollView>
-                
-          </View>
+          </ThemeWrapper>
     );
   }
 }

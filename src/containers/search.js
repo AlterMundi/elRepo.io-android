@@ -4,10 +4,9 @@ import { connect } from "react-redux"
 import {  Headline } from 'react-native-paper';
 import { AppBar } from "../components/appbar";
 import { PostCard } from "../components/postCard";
-
 import { bindActionCreators } from "redux";
 import apiActions from "../redux/api/actions"
-
+import {  ThemeWrapper } from  '../components/wrapper'
 const validsPosts = (post) => post.mMeta.mMsgName !== '' && post.mMsg !== ''
 
 class SearchContainer extends Component {
@@ -25,6 +24,7 @@ class SearchContainer extends Component {
   
   render() {
     return (
+      <ThemeWrapper>
           <View style={styles.container}>
               <AppBar title={'elRepo.io'} subtitle={'Resultados de busqueda'} />
                 <ScrollView style={styles.container}>
@@ -35,8 +35,8 @@ class SearchContainer extends Component {
                     ))}
                     </View>
                 </ScrollView>
-                
           </View>
+        </ThemeWrapper>
     );
   }
 }

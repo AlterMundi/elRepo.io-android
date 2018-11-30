@@ -5,6 +5,8 @@ import {  Text, Paragraph, Title, Card, Button } from 'react-native-paper';
 import { AppBar, } from "../components/appbar";
 import { NSD } from 'react-native-nsd';
 import { Handshake}  from 'react-native-handshake'
+import { ThemeWrapper } from '../components/wrapper';
+
 class StatusContainer extends Component {
     constructor(props) {
         super(props);
@@ -20,7 +22,7 @@ class StatusContainer extends Component {
   
   render() {
     return (
-          <View>
+          <ThemeWrapper>
               <AppBar  title={'elRepo.io'} subtitle={'Estado de conexiones'}/>
                 <Card  style={styles.card}>
                     <Card.Content>
@@ -34,11 +36,11 @@ class StatusContainer extends Component {
                             )) }
                     </Card.Content>
                 </Card>
-                <Button style={styles.button} mode="contained" onPress={()=>NSD.discover()} >Discover</Button>
-                <Button style={styles.button}  mode="contained" onPress={()=>{Handshake.startServer(this.props.cert)}}>Srart server</Button>
-                <Button style={styles.button}  mode="contained" onPress={()=>{Handshake.stopServer()}}>Stop server</Button>
-                <Button style={styles.button}  mode="contained" onPress={()=>NSD.stopDiscovery()}>Stop Discovery</Button>
-          </View>
+                <Button dark={true} style={styles.button} mode="contained" onPress={()=>NSD.discover()} >Discover</Button>
+                <Button dark={true} style={styles.button}  mode="contained" onPress={()=>{Handshake.startServer(this.props.cert)}}>Srart server</Button>
+                <Button dark={true} style={styles.button}  mode="contained" onPress={()=>{Handshake.stopServer()}}>Stop server</Button>
+                <Button dark={true} style={styles.button}  mode="contained" onPress={()=>NSD.stopDiscovery()}>Stop Discovery</Button>
+          </ThemeWrapper>
     );
   }
 }

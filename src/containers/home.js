@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { ScrollView, StyleSheet} from "react-native";
+import { ScrollView, StyleSheet, ImageBackground} from "react-native";
 import { connect } from "react-redux"
 import { AppBar } from "../components/appbar";
 import { bindActionCreators } from "redux";
@@ -8,6 +8,8 @@ import { Navigation } from "react-native-navigation";
 import { PostCard }  from '../components/postCard';
 import config from '../config'
 import { ThemeWrapper } from "../components/wrapper";
+
+const background = require('../assets/background.png');
 
 const validsPosts = (post) => post.mMeta.mMsgName !== '' && post.mMsg !== ''
 
@@ -36,11 +38,13 @@ class HomeContainer extends Component {
     return (
       <ThemeWrapper>
         <AppBar title={'elRepo.io'} subtitle={'Publicaciones'} searchIcon={true} onSearch={this.handleSearch} />
+        <ImageBackground  resizeMode="repeat" source={background}   style={{width: '100%', height: '100%'}}>
           <ScrollView style={styles.container}>
             {this.props.posts.map(post => (
                     <PostCard key={post.id} post={post}  />
             ))}
           </ScrollView>
+          </ImageBackground>
         </ThemeWrapper>
     );
   }
@@ -49,10 +53,10 @@ class HomeContainer extends Component {
 const styles = StyleSheet.create({
     container: {
       flex: 1,
-      backgroundColor: config.theme.colors.background
+      paddingTop: 10
     },
     content: {
-      padding: 4,
+      padding: 4
     }
   });
   

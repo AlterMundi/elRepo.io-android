@@ -13,7 +13,7 @@ export default {
     theme: {
         ...DefaultTheme,
         dark: true,
-        roundness: 2,
+        roundness: 4,
         colors: {
             ...DefaultTheme.colors,
             primary: '#89b52f',

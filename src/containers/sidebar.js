@@ -9,8 +9,8 @@ import config from '../config';
 
 const DrawerItemsData = [
   { label: 'Publicaciones', icon: 'inbox', key: 0, goTo: 'elRepoIO.home' },
-  { label: 'Subir', icon: 'file-upload', key: 1, goTo: 'elRepoIO.upload'},
-  { label: 'Buscar', icon: 'search', key: 2 , goTo: 'elRepoIO.search'},
+  { label: 'Buscar', icon: 'search', key: 1 , goTo: 'elRepoIO.search'},
+  { label: 'Publicar', icon: 'file-upload', key: 2, goTo: 'elRepoIO.upload'},
   { label: 'Estado de red', icon: 'settings-input-antenna', key: 3 , goTo: 'elRepoIO.status'}
 ];
 
@@ -42,6 +42,7 @@ class DrawerItems extends React.Component {
             <Drawer.Item
               {...props}
               key={props.key}
+              
               active={this.state.drawerItemIndex === props.key}
               onPress={() => this._setDrawerItem(props.key, props.goTo)}
             />

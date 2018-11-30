@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { View , ScrollView, StyleSheet } from "react-native";
+import { View , ScrollView, StyleSheet , ImageBackground} from "react-native";
 import { connect } from "react-redux"
 import {  Headline } from 'react-native-paper';
 import { AppBar } from "../components/appbar";
@@ -7,6 +7,9 @@ import { PostCard } from "../components/postCard";
 import { bindActionCreators } from "redux";
 import apiActions from "../redux/api/actions"
 import {  ThemeWrapper } from  '../components/wrapper'
+
+const background = require('../assets/background.png');
+
 const validsPosts = (post) => post.mMeta.mMsgName !== '' && post.mMsg !== ''
 
 class SearchContainer extends Component {
@@ -27,14 +30,16 @@ class SearchContainer extends Component {
       <ThemeWrapper>
           <View style={styles.container}>
               <AppBar title={'elRepo.io'} subtitle={'Resultados de busqueda'} />
-                <ScrollView style={styles.container}>
-                  <View style={styles.content}>
-                    <Headline>  {this.props.search}</Headline>
-                    {this.props.results.map((post, key) => (
-                      <PostCard key={key} post={post} />
-                    ))}
-                    </View>
-                </ScrollView>
+                <ImageBackground  resizeMode="repeat" source={background}   style={{width: '100%', height: '100%'}}>
+                  <ScrollView style={styles.container}>
+                    <View style={styles.content}>
+                      <Headline>  {this.props.search}</Headline>
+                      {this.props.results.map((post, key) => (
+                        <PostCard key={key} post={post} />
+                      ))}
+                      </View>
+                  </ScrollView>
+                </ImageBackground>
           </View>
         </ThemeWrapper>
     );

@@ -83,7 +83,10 @@ const styles = StyleSheet.create({
         borderRadius: 2
       },
       card: {
-        margin: 8,
+        marginLeft: 15,
+        marginRight: 15,
+        marginTop: 7,
+        marginBottom: 7,
       },
       hashTag: {
         color: 'blue',

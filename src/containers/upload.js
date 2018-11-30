@@ -10,6 +10,9 @@ import { Navigation } from "react-native-navigation";
 import { ThemeWrapper } from '../components/wrapper'
 import ImagePicker from 'react-native-image-crop-picker';
 import RNFS from 'react-native-fs';
+import  filesize from 'filesize'
+import { FileList }  from '../components/fileItem'
+
 class UploadContainer extends Component {
     constructor(props) {
         super(props);
@@ -23,6 +26,7 @@ class UploadContainer extends Component {
         this.publish = this.publish.bind(this);
         this.selectFiles = this.selectFiles.bind(this);
         this.imageUpload = this.imageUpload.bind(this);
+        this.removeFile = this.removeFile.bind(this);
     }
 
   static options (passProps) {
@@ -51,27 +55,35 @@ class UploadContainer extends Component {
     }
 
     publish() {
-        this.props.publish({
-            title: this.state.title || '',
-            description: this.state.description || '',
-            image: this.state.image || '',
-            files: this.state.files || []
-        })
-
-    //Fake loading status
+        //Fake loading status
         this.setState({uploading: !this.state.uploading})
-        setTimeout(()=>{
-            this.setState({uploading: !this.state.uploading});
-            Navigation.push('App', {
-                component: { name: 'elRepoIO.home' },
-              })
-        }, 3000)
+        fileUploader.shareFiles(this.state.files, this.props.sharedFolder)
+            .then(files => {
+                console.log('aaaa',files)
+                this.setState({uploading: !this.state.uploading})
+                // this.props.publish({
+                //     title: this.state.title || '',
+                //     description: this.state.description || '',
+                //     image: this.state.image || '',
+                //     files: files || []
+                // })
+                // this.setState({uploading: !this.state.uploading});
+                //     Navigation.push('App', {
+                //     component: { name: 'elRepoIO.home' },
+                // })
+            }).catch(e => console.log('aaaaa',e))
     }
 
     selectFiles() {
         fileUploader.openDialog()
-            .then((selected) => fileUploader.shareFiles({files: selected.files, destination: this.props.sharedFolder}))
-            .then(filesInfo => this.setState({files: [...filesInfo, ...this.state.files]}))
+            .then(fileInfo => this.setState({files: [...this.state.files, fileInfo]}))
+            //.then((selected) => fileUploader.shareFiles({files: selected.files, destination: this.props.sharedFolder}))
+            //.then(filesInfo => this.setState({files: [...filesInfo, ...this.state.files]}))
+    }
+
+    removeFile(file){
+        console.log('aaaaaa', file)
+        this.setState({files: this.state.files.filter(x => x.mHash !== file.mHash)})
     }
 
   render() {
@@ -100,6 +112,10 @@ class UploadContainer extends Component {
                             label='Descripción'
                             numberOfLines={4}
                         />
+
+                        {this.state.files.length > 0? 
+                            <FileList files={this.state.files} onPress={(file)=>this.removeFile(file)} icon="close"></FileList>
+                        : false}
                         
                         {this.state.image? (
                             <View>
@@ -122,7 +138,7 @@ class UploadContainer extends Component {
                             icon="file-upload"
                             mode="contained"
                             dark={true}
-                            onPress={() => console.log('Pressed')}>
+                            onPress={()=>this.selectFiles()}>
                                 Agregar archivos
                         </Button>
 
@@ -162,7 +178,7 @@ const styles = StyleSheet.create({
   
 export const Upload = connect(
     state => ({
-        sharedFolder: state.Api.folder.filename,
+        sharedFolder: state.Api.folder.filename
     }),
     dispatch => ({
         publish: bindActionCreators(apiActions.createPost, dispatch)

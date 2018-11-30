@@ -1,35 +1,32 @@
-let fileUP = {
-    openDialog: ()=> Promise.reject('no electron'),
-    shareFiles: ()=> Promise.reject('no electron'),
-}
+import { DocumentPicker, DocumentPickerUtil } from 'react-native-document-picker';
+import RNFS from 'react-native-fs';
+import RNGRP from 'react-native-get-real-path'
+ const uuid = require('uuid/v4');
 
-if(typeof window.require !== 'undefined') {
-    const uuid = require('uuid/v4');
-    const { remote, ipcRenderer } = window.require('electron');
-    const Dialog = remote.dialog;
-    fileUP = {
-        openDialog: ()=> new Promise((res,rej) => {
-            const filesNames = Dialog.showOpenDialog()
-            if(typeof filesNames === 'undefined'){
-                rej({error: 'no_file_selected'})           
-            }else{
-                res({ files : filesNames})
-            }
-        }),
-        shareFiles: ({files = [], destination}) => new Promise((res,rej)=>{
-            const requestCb = uuid()
-            ipcRenderer.send('shareFiles',{files, destination: destination ,cb: requestCb});
-            ipcRenderer.once(requestCb,(ev,result)=>{
-                if (!result.error)
-                    //-- { files: [{filename:...., hash:...., size:....}] }
-                    res(result.files)
-                else
-                    // -- { error: '.....' }
-                    rej(result)
-            })
-        })
-    
-    }
-}
-
-export const fileUploader = fileUP;
+export const fileUploader = {
+    openDialog: ()=> new Promise((res,rej) => {
+        DocumentPicker.show({
+            filetype: [DocumentPickerUtil.allFiles()],
+          },(error,data) => {
+            // Android
+            RNGRP.getRealPathFromURI(data.uri).then(filePath =>
+                RNFS.hash(filePath, 'sha1')
+                    .then(hash => {
+                        res({
+                            uri: filePath,
+                            type: data.type, // mime type
+                            mName: data.fileName,
+                            mSize: data.fileSize,
+                            mHash: hash
+                        });
+                    })
+                    .catch(e => console.log('aaaaaa', e))
+            );
+          })
+    }),
+    shareFiles: (files = [], destination) => new Promise((res,rej)=>{
+        const uploads = new Promise.all(
+            files.map(file => RNFS.copyFile(file.uri, destination+'/'+file.mName))
+        ).then(res).catch(rej)
+    })
+};

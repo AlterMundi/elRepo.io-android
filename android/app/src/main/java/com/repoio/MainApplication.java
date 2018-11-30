@@ -3,6 +3,7 @@ package com.repoio;
 import android.app.Application;
 
 import com.facebook.react.ReactApplication;
+import com.reactnative.ivpusic.imagepicker.PickerPackage;
 import com.rnfs.RNFSPackage;
 import net.altermundi.rn_handshake.HandshakePackage;
 import net.altermundi.rn_nsd.NsdPackage;
@@ -39,6 +40,7 @@ public class MainApplication extends NavigationApplication {
     protected List<ReactPackage> getPackages() {
         return Arrays.<ReactPackage>asList(
             new MainReactPackage(),
+            new PickerPackage(),
             new RNFSPackage(),
             new HandshakePackage(),
             new VectorIconsPackage(),

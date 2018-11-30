@@ -329,6 +329,7 @@ export const contentMagnament = function*() {
                     mGroupId: mGroupId,
                     mMsgName: action.payload.title
                 },
+                mThumbnail: action.payload.image? {mData: action.payload.image}: undefined,
                 mMsg: action.payload.description,
                 mFiles: (action.payload.files || []).map(file => ({
                     mName: file.fileName,

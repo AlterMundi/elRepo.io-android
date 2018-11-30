@@ -8,6 +8,10 @@ import { bindActionCreators } from 'redux';
 import apiActions from '../redux/api/actions'
 import filesize from "filesize"
 
+const fixTh = (base) => base
+  .replace('dataimage','data:image')
+  .replace('base64',';base64,')
+
 const  removeHtml = (text) =>  text
     .replace(/<script([\S\s]*?)>([\S\s]*?)<\/script>/ig)
     .replace(/<style([\S\s]*?)>([\S\s]*?)<\/style>/ig)
@@ -54,22 +58,23 @@ const FileList = ({files, onDownload}) => (
     render() {
       const {post} = this.props;
       return (
-        <Card  style={styles.card}>
-            <Card.Content>
-                <Title>{post.mMeta.mMsgName}</Title>
-                <ParsedText
-                  parse={[
-                    {pattern: /#(\w+)/,  style: styles.hashTag, onPress: this.handleHastag}
-                  ]}>
-                  {removeHtml(post.mMsg)}
-                </ParsedText>
-                {
-                      post.mFiles.length > 0
-                          ? <FileList files={post.mFiles} onDownload={this.handleDownload}  />
-                          : false
-                  }
-            </Card.Content>
-        </Card>
+          <Card >
+              {post.mThumbnail.mData !== '' && post.mThumbnail.mData.indexOf('base64') !== -1 ?(<Card.Cover source={{ uri: fixTh(post.mThumbnail.mData) }} />): false }
+              <Card.Content>
+                  <Title>{post.mMeta.mMsgName}</Title>
+                  <ParsedText
+                    parse={[
+                      {pattern: /#(\w+)/,  style: styles.hashTag, onPress: this.handleHastag}
+                    ]}>
+                    {removeHtml(post.mMsg)}
+                  </ParsedText>
+                  {
+                        post.mFiles.length > 0
+                            ? <FileList files={post.mFiles} onDownload={this.handleDownload}  />
+                            : false
+                    }
+              </Card.Content>
+          </Card>
       )
     }
   }
@@ -79,14 +84,9 @@ const styles = StyleSheet.create({
         marginLeft: -4,
         marginRight: -4,
         marginTop: 10,
+        marginBottom: 10,
         backgroundColor: "#f3f3f3",
         borderRadius: 2
-      },
-      card: {
-        marginLeft: 15,
-        marginRight: 15,
-        marginTop: 7,
-        marginBottom: 7,
       },
       hashTag: {
         color: 'blue',

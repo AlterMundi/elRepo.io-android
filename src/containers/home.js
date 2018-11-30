@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { ScrollView, StyleSheet, ImageBackground} from "react-native";
+import { View, ScrollView, StyleSheet, ImageBackground} from "react-native";
 import { connect } from "react-redux"
 import { AppBar } from "../components/appbar";
 import { bindActionCreators } from "redux";
@@ -40,8 +40,10 @@ class HomeContainer extends Component {
         <AppBar title={'elRepo.io'} subtitle={'Publicaciones'} searchIcon={true} onSearch={this.handleSearch} />
         <ImageBackground  resizeMode="repeat" source={background}   style={{width: '100%', height: '100%'}}>
           <ScrollView style={styles.container}>
-            {this.props.posts.map(post => (
-                    <PostCard key={post.id} post={post}  />
+            {this.props.posts.map((post, key) => (
+                <View key={key} style={styles.post} >
+                    <PostCard post={post}  />
+                  </View>
             ))}
           </ScrollView>
           </ImageBackground>
@@ -53,7 +55,14 @@ class HomeContainer extends Component {
 const styles = StyleSheet.create({
     container: {
       flex: 1,
-      paddingTop: 10
+      paddingTop: 10,
+      paddingBottom: 10,
+      marginBottom: 57,
+      paddingLeft: 15,
+      paddingRight: 15,
+    },
+    post: {
+      paddingBottom: 15
     },
     content: {
       padding: 4
@@ -66,7 +75,7 @@ export const Home = connect(
   (state) => ({
     channels: state.Api.channels,
     channelsInfo: state.Api.channelsInfo,
-    posts: (Object.values(state.Api.posts) || []).filter(validsPosts)
+    posts: (Object.values(state.Api.posts) || []).filter(validsPosts).sort((a,b) => (a.mMeta.mPublishTs < b.mMeta.mPublishTs)? 1: -1 )
   }),
   (dispatch) => ({
     searchContent: bindActionCreators(apiActions.newSearch, dispatch),

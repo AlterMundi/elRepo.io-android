@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { View , ScrollView, StyleSheet } from "react-native";
+import { View , ScrollView, StyleSheet, ImageBackground } from "react-native";
 import { connect } from "react-redux"
 import { TextInput, Button , Text} from 'react-native-paper';
 import { AppBar  } from "../components/appbar";
@@ -8,18 +8,21 @@ import apiActions from "../redux/api/actions"
 import { fileUploader } from '../helpers/fileUploader'
 import { Navigation } from "react-native-navigation";
 import { ThemeWrapper } from '../components/wrapper'
-
+import ImagePicker from 'react-native-image-crop-picker';
+import RNFS from 'react-native-fs';
 class UploadContainer extends Component {
     constructor(props) {
         super(props);
         this.state = {
             title: undefined,
             description: undefined,
+            image: undefined,
             files: [],
             uploading: false,
         }
         this.publish = this.publish.bind(this);
         this.selectFiles = this.selectFiles.bind(this);
+        this.imageUpload = this.imageUpload.bind(this);
     }
 
   static options (passProps) {
@@ -31,10 +34,27 @@ class UploadContainer extends Component {
       }
     }
   
+    imageUpload(){
+        ImagePicker.clean().then(() =>
+            ImagePicker.openPicker({
+                width: 400,
+                height: 230,
+                cropping: true,
+                includeBase64: true,
+                noData: true,
+            }).then(image => {
+                RNFS.readFile(image.path, 'base64').then(res => { 
+                    this.setState({image: `data:${image.mime};base64,${res}`})
+                })
+            })
+         ) .catch(e => console.log('ignore image',e))
+    }
+
     publish() {
         this.props.publish({
             title: this.state.title || '',
             description: this.state.description || '',
+            image: this.state.image || '',
             files: this.state.files || []
         })
 
@@ -80,6 +100,22 @@ class UploadContainer extends Component {
                             label='Descripción'
                             numberOfLines={4}
                         />
+                        
+                        {this.state.image? (
+                            <View>
+                                <Text>Imágen destacada</Text>
+                                <ImageBackground source={{uri:this.state.image}} style={{marginBottom: 15, height:115, resizeMode: 'contain'}} />
+                            </View>
+                        ): false}
+
+                        <Button 
+                            style={styles.input}
+                            icon="file-upload"
+                            mode="contained"
+                            dark={true}
+                            onPress={this.imageUpload}>
+                                Seleccionar imagen destacada
+                        </Button>
                         
                         <Button 
                             style={styles.input}

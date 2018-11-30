@@ -1,7 +1,8 @@
 import React, {Component} from 'react';
 import { View, StyleSheet } from "react-native";
-import { Appbar, Searchbar, DefaultTheme } from 'react-native-paper';
+import { Appbar, Searchbar } from 'react-native-paper';
 import { Navigation } from 'react-native-navigation';
+import config from '../config'
 
 
 export class AppBar extends Component {
@@ -46,10 +47,10 @@ export class AppBar extends Component {
     }
 
   render() {
-    const searchTheme = {...DefaultTheme, colors: {...DefaultTheme.colors, text: '#fff', placeholder: "rgba(255,255,255,0.7)",backgroundColor: DefaultTheme.colors.primary}};
+    const searchTheme = {...config.theme, dark: true, colors: {...config.theme.colors, text: '#ffffff', placeholder: "rgba(255,255,255,0.7)",backgroundColor: config.theme.colors.primary}};
     return (
       <View>
-        <Appbar.Header >
+        <Appbar.Header dark={true}>
           <Appbar.Content
             title={this.props.title || 'elRepo.io'}
             subtitle={this.props.subtitle}
@@ -76,6 +77,6 @@ export class AppBar extends Component {
 const style = StyleSheet.create({
   search: {
     borderRadius: 0,
-    backgroundColor: DefaultTheme.colors.primary
+    backgroundColor: config.theme.colors.primary
   }
 })

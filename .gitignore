@@ -57,3 +57,4 @@ buck-out/
 
 #Yarn dependecy lock file
 yarn.lock
+android/gradle.properties

@@ -9,6 +9,7 @@
     "test": "jest"
   },
   "dependencies": {
+    "babel-preset-react-native": "^4.0.1",
     "filesize": "^3.6.1",
     "react": "16.6.0-alpha.8af6728",
     "react-native": "0.57.4",

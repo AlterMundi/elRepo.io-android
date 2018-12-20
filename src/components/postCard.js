@@ -60,7 +60,6 @@ const  removeHtml = (text='') =>  text
                 { isDefined(post,'mThumbnail') && post.mThumbnail.mData !== '' && post.mThumbnail.mData.indexOf('base64') !== -1 ?(<Card.Cover source={{ uri: fixTh(post.mThumbnail.mData) }} />): false }
                 <Card.Content>
                     <Title>{post.mMsgName}</Title>
-                    <Text>{JSON.stringify(post, null, '  ')}</Text>
                     {
                       isDefined(post,'mMeta')?
                           <ParsedText

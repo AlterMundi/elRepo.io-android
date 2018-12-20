@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "start": "node node_modules/react-native/local-cli/cli.js start",
-    "release": "cd ./android && ./gradlew app:assembleRelease",
+    "release": "cd ./android && ./gradlew assembleRelease",
     "android": "cd ./android && ./gradlew app:assembleDebug && ./gradlew installDebug",
     "test": "jest"
   },
@@ -19,7 +19,7 @@
     "react-native-handshake": "^0.0.2",
     "react-native-image-crop-picker": "^0.21.3",
     "react-native-infinite-scroll-view": "^0.4.5",
-    "react-native-navigation": "^2.0.2637",
+    "react-native-navigation": "^2.2.5",
     "react-native-nsd": "^0.0.3",
     "react-native-paper": "^2.1.3",
     "react-native-parsed-text": "^0.0.20",

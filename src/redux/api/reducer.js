@@ -38,7 +38,8 @@ const initState = {
     alreadyDownloaded: [],
     files: [],
     fileInfo: {},
-    peersStatus:  {}
+    peersStatus:  {},
+    status: 'Iniciando'
 }
 
 export default function apiReducer(state = initState, action) {
@@ -47,19 +48,35 @@ export default function apiReducer(state = initState, action) {
             return {
                 ...state,
                 login: true,
-                runstate: true
+                runstate: true,
+                status: 'Usuario logueado'
+            }
+        case 'CHECK_LOGGIN_FAILD':
+            return {
+                ...state,
+                status: 'Error al intentar iniciar el servicio'
             }
         case 'CHECK_LOGGIN_SUCCESS':
             return {
                 ...state,
                 runstate: action.payload.retval
             }
-        case 'QUERY_LOCATIONS': {
+        case 'CONNECT': 
             return {
                 ...state,
-                user: {}
+                user: {},
+                status: 'Conectando con el servicio'
             }
-        }
+        case 'CREATE_ACCOUNT':
+            return {
+                ...state,
+                status: 'Creando cuenta de usuario'
+            }
+        case 'CREATE_ACCOUNT_SUCCESS':
+            return {
+                ...state,
+                status: 'Cuenta creada'
+            }
         case 'PEERS_INFO_SUCCESS': {
             return {
                 ...state,
@@ -82,11 +99,13 @@ export default function apiReducer(state = initState, action) {
             return {
                 ...state,
                 user: action.payload.locations[0],
+                status: 'Buscando cuentas en el sistema'
             }
         case 'REQUERY_LOCATIONS_SUCCESS': 
             return {
                 ...state,
-                user: action.payload.locations[0]
+                user: action.payload.locations[0],
+                status: 'Buscando cuentas en el sistema'    
             }
         case 'GET_IDENTITY_SUCCESS':
             return {

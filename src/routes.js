@@ -6,9 +6,11 @@ import { AppBar } from "./components/appbar";
 import { Files } from "./containers/files";
 import { FileInfo} from "./containers/fileInfo"
 import { DownloadStatus } from "./containers/downloadStatus";
+import { Splash } from "./containers/splash";
 
 export const Pages = [
     { component: AppBar, id: 'elRepoIO.appBar', title: 'appbar'},
+    { component: Splash, id: 'elRepoIO.splash', title: 'Splash'},
     { component: Home, id: 'elRepoIO.home', title: 'Home'},
     { component: Status, id: 'elRepoIO.status', title: 'Status'},
     { component: Search, id: 'elRepoIO.search', title: 'Search'},

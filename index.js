@@ -62,24 +62,12 @@ Navigation.events().registerAppLaunchedListener(() => {
         root: {
             sideMenu: {
                 id: "SideMenu",
-                right: {
-                    component: {
-                        id: "DownloadStatus",
-                        name: "elRepoIO.downloadStatus"
-                    }
-                  },
-                left: {
-                  component: {
-                      id: "Drawer",
-                      name: "navigation.elRepoIO.drawer"
-                  }
-                },
                 center: {
                     stack: {
                         id:'App',
                         children: [{
                             component: {
-                                name: "elRepoIO.home",
+                                name: "elRepoIO.splash",
                             }
                         }]
                     }, 

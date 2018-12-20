@@ -24,9 +24,7 @@ export const fileUploader = {
             );
           })
     }),
-    shareFiles: (files = [], destination) => new Promise((res,rej)=>{
-        const uploads = new Promise.all(
-            files.map(file => RNFS.copyFile(file.uri, destination+'/'+file.mName))
-        ).then(res).catch(rej)
-    })
+    shareFiles: (files = []) => new Promise.all(
+       files.map(file => RNFS.copyFile(file.uri, RNFS.ExternalDirectoryPath+'/'+file.mName).then(_ => ({ mName: file.mName, mSize: file.mSize, mHash: file.mHash })))
+    )
 };

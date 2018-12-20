@@ -1,5 +1,5 @@
 {
-  "name": "RepoIO",
+  "name": "elrepoio",
   "version": "0.0.1",
   "private": true,
   "scripts": {
@@ -13,10 +13,12 @@
     "react": "16.6.0-alpha.8af6728",
     "react-native": "0.57.4",
     "react-native-document-picker": "^2.1.0",
+    "react-native-file-viewer": "^1.0.10",
     "react-native-fs": "^2.12.1",
     "react-native-get-real-path": "https://github.com/Wraptime/react-native-get-real-path.git",
     "react-native-handshake": "^0.0.2",
     "react-native-image-crop-picker": "^0.21.3",
+    "react-native-infinite-scroll-view": "^0.4.5",
     "react-native-navigation": "^2.0.2637",
     "react-native-nsd": "^0.0.3",
     "react-native-paper": "^2.1.3",

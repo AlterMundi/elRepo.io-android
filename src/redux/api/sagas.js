@@ -1,4 +1,4 @@
-import { call, select, takeEvery, take, put, race } from 'redux-saga/effects';
+import { call, all, select, takeEvery, take, put, race } from 'redux-saga/effects';
 import actions from './actions';
 import uuidv1 from 'uuid/v1';
 import config from '../../config';
@@ -6,6 +6,7 @@ import httpApi from '../../httpApi';
 import { store } from '../../redux/store';
 import { apiCall } from '../../helpers/apiWrapper'
 import { userDiscovery } from '../../helpers/userDiscovery';
+import RNFS from 'react-native-fs';
 
 const apiHttp = httpApi(config.api.url,config.api.port);
 
@@ -16,220 +17,79 @@ const wait = ms => (
     })
 );
 
-export const user = function*() {
-    
-    yield takeEvery('LOGOUT', function*(){
-        yield apiHttp.send('-socket', {
-            type: 'LOGOUT',
-            payload: {
-                path: '/control/logout/'
-            }
-        })
-    })
-
-    yield takeEvery('CONNECT', function*(){
-        yield apiCall('CHECK_LOGGIN', '/rsLoginHelper/isLoggedIn')
-    })
-
-    yield takeEvery(['CHECK_LOGGIN_SUCCESS','QUERY_LOCATIONS'], function*(){
-        yield apiCall('QUERY_LOCATIONS','/rsLoginHelper/getLocations')
-    })
-
-    yield takeEvery('QUERY_LOCATIONS_SUCCESS', function*(action) {
-        const isLogged = yield select(state => state.Api.runstate === true);
-        //Si no hay cuentas crear una
-        if(action.payload.locations.length === 0)
-            yield put({type: actions.CREATE_ACCOUNT})
-        //Si el sistema tiene cuentas y fugura sin login hago lopgin
-        else if (isLogged === false)
-            yield put({type: actions.LOGIN, payload: action.payload.locations[0]})
-        //Sino simulo un login exitoso
-        else
-            yield put({type: actions.LOGIN_SUCCESS, payload: action.payload.locations[0]})
-    })
-
-    yield takeEvery(actions.CREATE_ACCOUNT, function*({type, payload = {}   }){
-        const username = payload.username || uuidv1() + '_repo';
-        const password = payload.password? payload.password: yield select(state => state.Api.password)
-        yield apiCall(
-            actions.CREATE_ACCOUNT,
-            '/rsLoginHelper/createLocation',
-            {
-                location: {
-                    mPpgName: username,
-                    mLocationName: username
-                },
-                password: password,
-                makeHidden: false,
-                makeAutoTor: false
-            }
-        )
-    })
-
-    yield takeEvery(actions.CREATE_ACCOUNT_SUCCESS, function*(action){
-        yield put({ type: 'QUERY_LOCATIONS'})
-        //yield put({ type: 'CREATE_USER_CHANNEL'})
-    })
-
-    yield takeEvery(actions.LOGIN, function*({type, payload}) {
-        const password = payload.password? payload.password: yield select(state => state.Api.password)
-        yield apiCall(actions.LOGIN,'/rsLoginHelper/attemptLogin', {
-            account: payload.mLocationId,
-            password: password
-        })
-    });
-
-    yield takeEvery(['START_SYSTEM','GET_SELF_CERT'], function*(){
-        const userId = yield select(state => state.Api.user.mLocationId)
-        yield apiCall('GET_SELF_CERT','/rsPeers/GetRetroshareInvite',{
-            sslId: userId
-        })
-    })
-
-    yield takeEvery('GET_SELF_CERT_SUCCESS', function*(action){
-        const user = yield select(state => state.Api.user.mLocationName);
-        const key = action.payload.retval;
-        yield put({type: 'START_DISCOVERY', payload: {user, key}})
-    })
-
-    yield takeEvery([actions.LOGIN_SUCCESS], function*() {
-        yield wait(1000) // Graceful wait
-        yield put({type: 'START_SYSTEM'})
-    });
+function connect(){
+    apiCall('CHECK_LOGGIN', '/rsLoginHelper/isLoggedIn');
 }
 
+function queryLocations(){
+    apiCall('QUERY_LOCATIONS','/rsLoginHelper/getLocations')
+}
 
-export const channels = function*() {
-    yield takeEvery('START_SYSTEM' , function*(){
-        yield put({ type: 'LOADCHANNELS' })
-        let chansIds = [];
-        while(true) {
-            const winner = yield race({
-                stopped: take('LOADCHANNEL_CONTENT_STOP'),
-                tick: call(wait, 10000)
-            })
+function* loginOrCreate(action) {
+    const isLogged = yield select(state => state.Api.runstate === true);
+    //Si no hay cuentas crear una
+    if(action.payload.locations.length === 0)
+        yield put({type: actions.CREATE_ACCOUNT})
+    //Si el sistema tiene cuentas y fugura sin login hago lopgin
+    else if (isLogged === false)
+        yield put({type: actions.LOGIN, payload: action.payload.locations[0]})
+    //Sino simulo un login exitoso
+    else
+        yield put({type: actions.LOGIN_SUCCESS, payload: action.payload.locations[0]})
+}
 
-            if (!winner.stopped) {              
-                chansIds = yield select(state => state.Api.channels.map(channel => channel.mGroupId));
-                yield put({type: 'LOADCHANNEL_CONTENT', payload: {
-                 channels: chansIds
-                }})
-                yield put({ type: 'LOADCHANNELS' })
-            } else {
-                break
-            }
-    }
-})
-
-    yield takeEvery('LOADCHANNELS', function*() {
-        yield apiCall('LOADCHANNELS','/rsGxsChannels/getChannelsSummaries');
-    })
-
-    yield takeEvery('LOADCHANNEL_EXTRADATA', function*(action) {
-        yield apiCall('LOADCHANNEL_EXTRADATA','/rsGxsChannels/getChannelsInfo',{
-            chanIds: action.payload.channels
-        })
-    })
-    
-    yield takeEvery('LOADCHANNEL_CONTENT', function*(action) {
-        yield apiCall('LOADCHANNEL_POSTS','/rsGxsChannels/getChannelsContent',{
-            chanIds: action.payload.channels
-        })
-    })
-
-    yield takeEvery('LOADCHANNELS_SUCCESS', function*(action){
-        //Autosubcrive _repo channels
-        var a = 0;
-        const user = yield select(state => state.Api.user)
-        if(action.payload.channels.length === 0) {
-            //Create user channel if not exist
-            yield put({type: 'CREATE_USER_CHANNEL'})
+function* createAccount({type, payload = {}   }){
+    const username = payload.username || uuidv1() + '_repo';
+    const password = payload.password? payload.password: yield select(state => state.Api.password)
+    yield call(apiCall,
+        actions.CREATE_ACCOUNT,
+        '/rsLoginHelper/createLocation',
+        {
+            location: {
+                mPpgName: username,
+                mLocationName: username
+            },
+            password: password,
+            makeHidden: false,
+            makeAutoTor: false
         }
-        while(action.payload.channels.length > a) {
-            if(
-                //If is open repo channel
-                (action.payload.channels[a].mGroupName.indexOf('_repo') !== -1) &&
-                //And im not subscribed
-                (action.payload.channels[a].mSubscribeFlags === 8 ) &&
-                //And not is my channel
-                (action.payload.channels[a].mGroupName !== user.mLocationName)
-            ) {
-                yield apiCall('CHANNEL_SUBSCRIVE', '/rsGxsChannels/subscribeToChannel',{
-                    channelId: action.payload.channels[a].mGroupId,
-                    subscribe: true
-                })
-            }
-            a++;
-        }
+    )
+}
+
+function* login({type, payload}) {
+    const password = payload.password? payload.password: yield select(state => state.Api.password)
+    yield call(apiCall,actions.LOGIN,'/rsLoginHelper/attemptLogin', {
+        account: payload.mLocationId,
+        password: password
     })
 }
 
-
-export const peers = function*() {
-    yield takeEvery(['START_SYSTEM'], function*(action){
-        yield put({type: 'LOADPEERS'})
-        while(true) {
-            const winner = yield race({
-                stopped: take('PEER_MONITOR_STOP'),
-                tick: call(wait, 10000)
-            })
-
-            if (!winner.stopped) {
-                yield put({type: 'LOADPEERS'})
-            } else {
-                break
-            }
-        }
-    });
-
-    yield takeEvery('LOADPEERS', function*() {
-        yield apiCall('PEERS','/rsPeers/getFriendList')
+function* getCertificate(){
+    const userId = yield select(state => state.Api.user.mLocationId)
+    yield call(apiCall,'GET_SELF_CERT','/rsPeers/GetRetroshareInvite',{
+        sslId: userId
     })
+}
 
-    yield takeEvery('PEERS_SUCCESS', function*(action){
-        const sslIds = action.payload.sslIds || [];
-        if(sslIds.length > 0) {
-            let i = 0;
-            while(i < sslIds.length){
-                yield put({type: 'LOADPEER_INFO', payload: {id: sslIds[i]}});
-                i++;
-            }
-        }
-        return;
-    })
+function* startDiscovery(action){
+    const user = yield select(state => state.Api.user.mLocationName);
+    const key = action.payload.retval;
+    yield put({type: 'START_DISCOVERY', payload: {user, key}})
+}
 
-    yield takeEvery('LOADPEER_INFO', function*(action){
-        yield apiCall('LOADPEER_INFO','/rsPeers/getPeerDetails',{
-            sslId: action.payload.id
-        })
-    })
+function* triggerStartSystem() {
+    yield put({type: 'START_SYSTEM'})
+}
 
-   yield takeEvery('LOADPEER_INFO_SUCCESS', function*(action){
-        const result = yield apiCall('PEER_STATUS','/rsPeers/isOnline',{
-                    sslId: action.payload.det.id
-        })
-        yield put({type: 'CHANGE_PEER_STATUS', payload: { id: action.payload.det.id, status: result.retval}})
-    })
-
-    let joinTier = 0;
-    yield takeEvery('PEERS_SUCCESS', function*(action){
-        if(joinTier !== 0) return;
-        joinTier = 1;
-        //if (typeof action.payload.sslIds !== 'undefined' && action.payload.sslIds.length === 0){
-        if(true){
-            const api = yield select(state => state.Api)
-            if (api.cert)
-                yield put({
-                    type: actions.JOIN_TIER,
-                    payload: {
-                        url: config.tiers1[0].url,
-                        remote: true,
-                        cert: api.cert,
-                        user: api.user.mLocationName
-                    }
-                })
-        }
-    })
+export const user = function*() {    
+    yield takeEvery('CONNECT', connect)
+    yield takeEvery([   actions.CREATE_ACCOUNT_SUCCESS,'CHECK_LOGGIN_SUCCESS','QUERY_LOCATIONS'], queryLocations) 
+    yield takeEvery('QUERY_LOCATIONS_SUCCESS', loginOrCreate)
+    yield takeEvery(actions.CREATE_ACCOUNT, createAccount)
+    yield takeEvery(actions.LOGIN, login)
+    yield takeEvery(['START_SYSTEM','GET_SELF_CERT'], getCertificate)
+    yield takeEvery('GET_SELF_CERT_SUCCESS', startDiscovery)
+    yield takeEvery([actions.LOGIN_SUCCESS], triggerStartSystem)
 }
 
 export const search = function*(){
@@ -296,7 +156,7 @@ export const search = function*(){
 export const contentMagnament = function*() {
     
     yield takeEvery('START_SYSTEM', function*(){
-        yield apiCall('USER_FOLDERS','/rsFiles/getSharedDirectories')
+        yield call(apiCall,'USER_FOLDERS','/rsFiles/getSharedDirectories')
     })  
 
     yield takeEvery(['CREATE_USER_CHANNEL'],function*({action, payload={}}){
@@ -312,7 +172,7 @@ export const contentMagnament = function*() {
                 }
             }
         };
-        yield apiCall('CREATE_USER_CHANNEL','/rsGxsChannels/createChannel',newGroupData)
+        yield call(apiCall,'CREATE_USER_CHANNEL','/rsGxsChannels/createChannel',newGroupData)
     })
 
 
@@ -323,7 +183,7 @@ export const contentMagnament = function*() {
         const mGroupId = channels.reduce((prev,channel) => 
             (channel.mGroupName === user.mLocationName)? channel.mGroupId: prev,'')
         
-        yield apiCall('CREATE_POST', '/rsGxsChannels/createPost', {
+        yield call(apiCall,'CREATE_POST', '/rsGxsChannels/createPost', {
             post: {
                 mMeta: {
                     mGroupId: mGroupId,
@@ -331,42 +191,52 @@ export const contentMagnament = function*() {
                 },
                 mThumbnail: action.payload.image? {mData: action.payload.image}: undefined,
                 mMsg: action.payload.description,
-                mFiles: (action.payload.files || []).map(file => ({
-                    mName: file.fileName,
-                    mSize: file.size,
-                    mHash: file.hash
-                }))
+                mFiles: action.payload.files || []
             }
         })
     })
 
     yield takeEvery('DOWNLOAD_FILE', function*({type, payload}){
-        yield apiCall('DOWNLOAD_FILE', '/rsFiles/FileRequest', {
+        const path = yield select(state => state.Api.folders[0].filename)
+        const request = {
             fileName: payload.mName,
             hash: payload.mHash,
-            size: payload.mSize
-        })
+            size: payload.mSize,
+            flags: 64,
+            destPath: path
+        }
+        console.log('file', request)
+        yield call(apiCall,'DOWNLOAD_FILE', '/rsFiles/FileRequest', request)
     })
 
     yield takeEvery(actions.CHECK_FILE_STATUS, function*({type, payload}){
         //FiledDownloadChunk --> MEJOR!!!
-        apiCall(actions.CHECK_FILE_STATUS, '/rsFiles/FileDetails', { hintflags: 128, hash: payload.mHash})
+        yield call(apiCall,actions.CHECK_FILE_STATUS, '/rsFiles/FileDetails', { hintflags: 128, hash: payload.mHash})
     })
 
     yield takeEvery(actions.GET_FILE_INFO, function*({type, payload}){
-        apiCall(actions.GET_FILE_INFO, '/rsFiles/alreadyHaveFile', { hash: payload.mHash})
+        yield call(apiCall,actions.GET_FILE_INFO, '/rsFiles/alreadyHaveFile', { hash: payload.mHash})
     })
 
-    yield takeEvery(actions.DOWNLOAD_STATUS, function*({type, payload}){
-        apiCall(actions.DOWNLOAD_STATUS, '/rsFiles/FileDownloads')
+    yield takeEvery([actions.DOWNLOAD_STATUS, 'DOWNLOAD_FILE_SUCCESS'], function*({type, payload}){
+        yield call(apiCall,actions.DOWNLOAD_STATUS, '/rsFiles/FileDownloads')
     })
 
-    // yield takeEvery(actions.DOWNLOAD_STATUS_SUCCESS, function*({type, payload}) {
-
-    // });
+     yield takeEvery(actions.DOWNLOAD_STATUS_SUCCESS, function*({type, payload}) {
+        try {
+            const filesData = yield all(payload.hashs.map(hash => call(apiCall,null, '/rsFiles/FileDownloadChunksDetails', { hash })))
+            const filesDetails=  yield all(payload.hashs.map(hash => call(apiCall,null, '/rsFiles/FileDetails', { hintflags: 16, hash})))
+            const filesDataWhitHash = filesData.map((data, key)=> ({...data.info, ...filesDetails[key]}))
+            console.log(filesDataWhitHash)
+            yield put({type: 'DOWNLOADING', payload: filesDataWhitHash})
+        } catch(e) {
+            console.error(e)
+        }
+     });
 
     yield takeEvery('START_SYSTEM' , function*(){
-        yield put({ type: 'DOWNLOAD_STATUS' })
+        //yield put({ type: 'DOWNLOAD_STATUS' })
+        //yield put({type: 'ADD_FOLDER'})
         while(true) {
             const winner = yield race({
                 stopped: take('DONWLOAD_STATUS_STOP'),
@@ -381,18 +251,21 @@ export const contentMagnament = function*() {
         }
     });
 
+    yield takeEvery('ADD_FOLDER', function*(){
+        yield call(apiCall,'ADD_FOLDER', '/rsFiles/setSharedDirectories',{dirs: [{shareflags: 128, filename: RNFS.ExternalDirectoryPath, parent_groups: [], virtualname: 'elrepoio'}]})
+    })
 
 }
 
 export const discoveryService = function*() {
-     yield takeEvery('START_DISCOVERY',function*({type, payload}){
-         try {
-             const result = yield userDiscovery.startService(payload)
-             console.log({discovery: result})
-         } catch(e){
-             console.log({discovery: e})
-         }
-     })
+    //  yield takeEvery('START_DISCOVERY',function*({type, payload}){
+    //      try {
+    //          const result = yield userDiscovery.startService(payload)
+    //          console.log({discovery: result})
+    //      } catch(e){
+    //          console.log({discovery: e})
+    //      }
+    //  })
 
     let certs = [];
     yield takeEvery('USER_DISCOVERY_RESULT',function*({type, payload}){

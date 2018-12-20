@@ -69,6 +69,16 @@ export const actions = {
         })
     },
 
+    loadPostData:(post) => (dispatch) => {
+        dispatch({
+            type: 'LOAD_POST_EXTRA',
+            payload: {
+                channelId: post.mGroupId,
+                contentsIds: [post.mMsgId]
+            }
+        })
+    },
+
     loadChannelContent:(channelId) => (dispatch) => {
         dispatch({
             type: 'LOADCHANNEL_CONTENT',

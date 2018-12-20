@@ -3,7 +3,8 @@ import { Status } from './containers/status';
 import { Search } from './containers/search';
 import { Upload } from './containers/upload';
 import { AppBar } from "./components/appbar";
-import { FileInfo } from "./containers/fileInfo";
+import { Files } from "./containers/files";
+import { FileInfo} from "./containers/fileInfo"
 import { DownloadStatus } from "./containers/downloadStatus";
 
 export const Pages = [
@@ -13,5 +14,6 @@ export const Pages = [
     { component: Search, id: 'elRepoIO.search', title: 'Search'},
     { component: Upload, id: 'elRepoIO.upload', title: 'Upload'},
     { component: FileInfo, id: 'elRepoIO.fileInfo', title: 'File Information'},
+    { component: Files, id: 'elRepoIO.fileList', title: 'File List'},
     { component: DownloadStatus, id: 'elRepoIO.downloadStatus', title: 'Download Status'},
 ]

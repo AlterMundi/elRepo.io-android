@@ -1,13 +1,15 @@
 import React, { Component } from "react";
-import { View, ScrollView, StyleSheet, ImageBackground} from "react-native";
+import { FlatList, View, ScrollView, StyleSheet, ImageBackground, Button} from "react-native";
 import { connect } from "react-redux"
 import { AppBar } from "../components/appbar";
 import { bindActionCreators } from "redux";
 import apiActions from "../redux/api/actions"
 import { Navigation } from "react-native-navigation";
 import { PostCard }  from '../components/postCard';
-import config from '../config'
 import { ThemeWrapper } from "../components/wrapper";
+
+import InfiniteScrollView from 'react-native-infinite-scroll-view';
+
 
 const background = require('../assets/background.png');
 
@@ -16,6 +18,10 @@ const validsPosts = (post) => post.mMeta.mMsgName !== '' && post.mMsg !== ''
 class HomeContainer extends Component {
     constructor(props) {
         super(props);
+        this.state = {
+          until: 5
+        }
+        this.addPosts = this.addPosts.bind(this)
         this.handleSearch = this.handleSearch.bind(this);
     }
   static options (passProps) {
@@ -25,6 +31,11 @@ class HomeContainer extends Component {
               height: 0
           }
       }
+  }
+
+  addPosts() {
+    this.setState({until: this.state.until + 5})
+    console.log(this.state.until)
   }
 
   handleSearch(value){
@@ -39,18 +50,24 @@ class HomeContainer extends Component {
       <ThemeWrapper>
         <AppBar title={'elRepo.io'} subtitle={'Publicaciones'} searchIcon={true} onSearch={this.handleSearch} />
         <ImageBackground  resizeMode="repeat" source={background}   style={{width: '100%', height: '100%'}}>
-          <ScrollView style={styles.container}>
-            {this.props.posts.map((post, key) => (
-                <View key={key} style={styles.post} >
-                    <PostCard post={post}  />
+                   
+          <FlatList 
+            data={this.props.posts(this.state.until)}
+            on
+            onEndReached={this.addPosts}
+            style={styles.container}
+            renderItem={ element => 
+                <View style={styles.post} key={element.key}>
+                    <PostCard post={element.item}  componentId={this.props.componentId}/>
                   </View>
-            ))}
-          </ScrollView>
+            } /> 
           </ImageBackground>
         </ThemeWrapper>
     );
   }
 }
+
+
 
 const styles = StyleSheet.create({
     container: {
@@ -73,15 +90,10 @@ const styles = StyleSheet.create({
 
 export const Home = connect(
   (state) => ({
-    channels: state.Api.channels,
-    channelsInfo: state.Api.channelsInfo,
-    posts: (Object.values(state.Api.posts) || []).filter(validsPosts).sort((a,b) => (a.mMeta.mPublishTs < b.mMeta.mPublishTs)? 1: -1 )
+    posts: (until)=> state.Api.posts.filter((_,key)=> key <= until)
   }),
   (dispatch) => ({
-    searchContent: bindActionCreators(apiActions.newSearch, dispatch),
-    updateChannels: bindActionCreators(apiActions.updateChannels, dispatch),
-    loadExtraData: bindActionCreators(apiActions.loadExtraData, dispatch),
-    loadChannelContent: bindActionCreators(apiActions.loadChannelContent, dispatch)
+    searchContent: bindActionCreators(apiActions.newSearch, dispatch)
 })
   
 )(HomeContainer)

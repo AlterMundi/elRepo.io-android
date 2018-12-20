@@ -6,6 +6,7 @@ import { AppBar, } from "../components/appbar";
 import { NSD } from 'react-native-nsd';
 import { Handshake}  from 'react-native-handshake'
 import { ThemeWrapper } from '../components/wrapper';
+import { apiCall } from "../helpers/apiWrapper";
 
 class StatusContainer extends Component {
     constructor(props) {
@@ -32,14 +33,21 @@ class StatusContainer extends Component {
                         <Paragraph> {this.props.userId}</Paragraph>
                         <Title>Contactos:</Title> 
                             { this.props.friends.map(friend => (
-                                <Text key={friend.id}>{friend.name} ({friend.status === true ? 'online': 'offline' })</Text>
+                                <Text key={friend.id}>{friend.name} ({this.props.peersStatus[friend.id] === true ? 'online': 'offline' })</Text>
                             )) }
                     </Card.Content>
                 </Card>
-                <Button dark={true} style={styles.button} mode="contained" onPress={()=>NSD.discover()} >Discover</Button>
-                <Button dark={true} style={styles.button}  mode="contained" onPress={()=>{Handshake.startServer(this.props.cert)}}>Srart server</Button>
+                {/* <Button dark={true} style={styles.button} mode="contained" onPress={()=>NSD.discover()} >Discover</Button>
+                <Button dark={true} style={styles.button}  mode="contained" onPress={()=>{Handshake.startServer(this.props.cert)}}>Srart server</Button> */}
                 <Button dark={true} style={styles.button}  mode="contained" onPress={()=>{Handshake.stopServer()}}>Stop server</Button>
                 <Button dark={true} style={styles.button}  mode="contained" onPress={()=>NSD.stopDiscovery()}>Stop Discovery</Button>
+                <Button dark={true} style={styles.button}  mode="contained" onPress={()=>{
+                  Promise.all(
+                    this.props.downloading.map(file => apiCall(null, '/rsFiles/FileCancel', { hash: file.info.hash }))
+                  )
+                    .then(console.log)
+                    .catch(console.error)
+                }}>Clear active donwloads</Button>
           </ThemeWrapper>
     );
   }
@@ -68,8 +76,9 @@ export const Status = connect(
     stauts: state.Api.login? 'Listo': 'Iniciando',
     cert: (state.Api.cert || '').replace(/\n/g,'\\n')+'\n',
     userId: state.Api.user? state.Api.user.mLocationName: '',
-    friends: state.Api.peers? state.Api.peers : [],
-    
+    friends: state.Api.peers? state.Api.peers.sort((a,b)=> a.name[0]>b.name[0]? 1: -1) : [],
+    peersStatus: state.Api.peersStatus, 
+    downloading: state.Api.downloading
   }),
   (dispatch) => ({
 })

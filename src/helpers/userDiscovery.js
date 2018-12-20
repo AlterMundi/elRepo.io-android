@@ -11,8 +11,9 @@ export const userDiscovery = {
         }else{
             NSD.stopDiscovery();
             NSD.unregister();
-
+        
             DeviceEventEmitter.addListener('handshakeServerStarted', function(e){
+                NSD.setServiceName('elrepoio');
                 NSD.register(e.port)
                 NSD.discover();
                 res({status: 'running', ...e});
@@ -28,7 +29,9 @@ export const userDiscovery = {
             DeviceEventEmitter.addListener('serviceResolved', function(e){
                 console.log("JS: service resolved");
                 console.log(e.name, e.host, e.port); 
-                Handshake.receiveKey(e.host, e.port);
+                if(e.name.indexOf('elrepoio') !== -1 ||  e.name.indexOf('Undefined service') !==  -1 ) {
+                    Handshake.receiveKey(e.host, e.port);
+                }
             });
 
             Handshake.startServer(key.replace(/\n/g,'\\n')+'\n');

@@ -9,6 +9,7 @@ import config from '../config';
 
 const DrawerItemsData = [
   { label: 'Publicaciones', icon: 'inbox', key: 0, goTo: 'elRepoIO.home' },
+  { label: 'Descargas', icon: 'folder-shared', key: 4, goTo: 'elRepoIO.fileList'},
   { label: 'Buscar', icon: 'search', key: 1 , goTo: 'elRepoIO.search'},
   { label: 'Publicar', icon: 'file-upload', key: 2, goTo: 'elRepoIO.upload'},
   { label: 'Estado de red', icon: 'settings-input-antenna', key: 3 , goTo: 'elRepoIO.status'}
@@ -22,16 +23,16 @@ class DrawerItems extends React.Component {
 
   _setDrawerItem = (index,goTo) => {
     this.setState({ drawerItemIndex: index })  
-      Navigation.push('App', {
-        component: { name: goTo },
-      })
-      Navigation.mergeOptions('SideMenu', {
-        sideMenu: {
-            left: {
-              visible: false
-            }
-          }
-      })
+    Navigation.mergeOptions(this.props.componentId, {
+      sideMenu: {
+        left: {
+          visible: false
+        }
+      }
+    })
+    Navigation.push('App', {
+      component: { name: goTo },
+    })
   };
 
   render() {

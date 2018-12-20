@@ -20,6 +20,7 @@ const composeEnhancers =
 
 const enhancer = composeEnhancers(
   applyMiddleware(...middlewares, logger),
+  //applyMiddleware(...middlewares),
 );
 
 

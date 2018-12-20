@@ -98,7 +98,7 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
 
     defaultConfig {
-        applicationId "com.repoio"
+        applicationId "net.altermundi.elrepoio"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         missingDimensionStrategy "RNN.reactNativeVersion", "reactNative57"
@@ -143,6 +143,7 @@ android {
 }
 
 dependencies {
+    compile project(':react-native-file-viewer')
     compile project(':react-native-get-real-path')
     compile project(':react-native-document-picker')
     compile project(':react-native-image-crop-picker')

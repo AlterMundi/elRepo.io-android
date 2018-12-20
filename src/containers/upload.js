@@ -57,20 +57,19 @@ class UploadContainer extends Component {
     publish() {
         //Fake loading status
         this.setState({uploading: !this.state.uploading})
-        fileUploader.shareFiles(this.state.files, this.props.sharedFolder)
+        fileUploader.shareFiles(this.state.files)
             .then(files => {
                 console.log('aaaa',files)
-                this.setState({uploading: !this.state.uploading})
-                // this.props.publish({
-                //     title: this.state.title || '',
-                //     description: this.state.description || '',
-                //     image: this.state.image || '',
-                //     files: files || []
-                // })
-                // this.setState({uploading: !this.state.uploading});
-                //     Navigation.push('App', {
-                //     component: { name: 'elRepoIO.home' },
-                // })
+                this.props.publish({
+                     title: this.state.title || '',
+                     description: this.state.description || '',
+                     image: this.state.image || '',
+                     files: files || []
+                })
+                this.setState({uploading: !this.state.uploading});
+                Navigation.push('App', {
+                   component: { name: 'elRepoIO.home' },
+                })
             }).catch(e => console.log('aaaaa',e))
     }
 
@@ -177,9 +176,7 @@ const styles = StyleSheet.create({
   });
   
 export const Upload = connect(
-    state => ({
-        sharedFolder: state.Api.folder.filename
-    }),
+    state => ({}),
     dispatch => ({
         publish: bindActionCreators(apiActions.createPost, dispatch)
     })

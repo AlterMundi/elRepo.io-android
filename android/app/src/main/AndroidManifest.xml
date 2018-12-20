@@ -1,8 +1,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.repoio">
+    package="net.altermundi.elrepoio">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     
     <application
       android:name=".MainApplication"
@@ -10,6 +11,16 @@
       android:icon="@mipmap/ic_launcher"
       android:allowBackup="false"
       android:theme="@style/AppTheme">
+        <provider
+          android:name="com.vinzscam.reactnativefileviewer.FileProvider"
+          android:authorities="${applicationId}.provider"
+          android:exported="false"
+          android:grantUriPermissions="true">
+          <meta-data
+              android:name="android.support.FILE_PROVIDER_PATHS"
+              android:resource="@xml/file_viewer_provider_paths"
+          />
+      </provider>
       <activity
         android:name=".MainActivity"
         android:label="@string/app_name"

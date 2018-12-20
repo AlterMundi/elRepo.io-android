@@ -3,16 +3,13 @@ import EventSource from './events';
 import Base64 from '../helpers/base64';
 
 const api = (url, port) => {
-    const apiHttp = (path, data, method, headers) => 
-        new Promise((res, rej) =>{
-            fetch(url+':'+port+path, { headers, method , body: data? JSON.stringify(data): undefined}   )
-                .then(result => { console.log(result); return result;})
-                .then(result => res(result.json()))
-                .catch(err => res({error : err}))
-        });
+    const apiHttp = (path, data, method, headers) => fetch(url+':'+port+path, { headers, method , body: data? JSON.stringify(data): undefined}   )
+                //.then(result => { console.log(result); return result;})
+                .then(result => result.json())
 
     return  {
-        send: (version, request) => new Promise((res, rej) => {
+        send: (version, request) =>  {
+            const dispatchAction = typeof request.type !== 'undefined' && request.type !== null ? true: false;
             if(version === 'api') {
                 
                 let headers = new Headers()
@@ -24,17 +21,13 @@ const api = (url, port) => {
 
                 return apiHttp(request.payload.path, request.payload.data, request.payload.method || 'POST', headers)
                     .then((data) =>{
-                        console.log('request',data)
                         if(typeof data.error === "undefined")
-                            store.dispatch({type:request.type+'_SUCCESS', payload: data })
+                            return dispatchAction? store.dispatch({type:request.type+'_SUCCESS', payload: data }): Promise.resolve(data)
                         else
-                            store.dispatch({type:request.type+'_FAILD', payload: data.error });    
-                        res(data)
+                            return dispatchAction? store.dispatch({type:request.type+'_FAILD', payload: data.error }): Promise.resolve(data)
                     })
                     .catch((e)=> {
-                        console.log('errror', e)
-                        store.dispatch({type:request.type+'_FAILD', payload: e });
-                        rej(e)
+                        dispatchAction? store.dispatch({type:request.type+'_FAILD', payload: e }): console.warn(e)
                     })
             }
             else if(version === 'stream') {
@@ -45,9 +38,9 @@ const api = (url, port) => {
                         'Authorization': 'Basic ' + Base64.btoa(Api.user.mLocationId + ":" + Api.password)
                     }
                 });
-                res(evtSource);
+                return Promise.resolve(evtSource);
             }
-        })
+        }
     };
 };
 

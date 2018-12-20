@@ -1,4 +1,4 @@
-package com.repoio;
+package net.altermundi.elrepoio;
 
 import android.app.Application;
 
@@ -17,6 +17,7 @@ import com.facebook.soloader.SoLoader;
 import com.reactnativenavigation.NavigationApplication;
 import com.reactnativenavigation.react.NavigationReactNativeHost;
 import com.reactnativenavigation.react.ReactGateway;
+import com.vinzscam.reactnativefileviewer.RNFileViewerPackage;
 
 import java.util.Arrays;
 import java.util.List;
@@ -48,7 +49,8 @@ public class MainApplication extends NavigationApplication {
             new RNFSPackage(),
             new HandshakePackage(),
             new VectorIconsPackage(),
-            new NsdPackage()
+            new NsdPackage(),
+            new RNFileViewerPackage()
         );
     }
 

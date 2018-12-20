@@ -49,7 +49,7 @@ export default function apiReducer(state = initState, action) {
                 ...state,
                 login: true,
                 runstate: true,
-                status: 'Usuario logueado'
+                status: 'Todo listo! Arrancando...'
             }
         case 'CHECK_LOGGIN_FAILD':
             return {
@@ -76,6 +76,11 @@ export default function apiReducer(state = initState, action) {
             return {
                 ...state,
                 status: 'Cuenta creada'
+            }
+        case 'LOGIN':
+            return {
+                ...state,
+                status: 'Tratando de iniciar sesión'
             }
         case 'PEERS_INFO_SUCCESS': {
             return {

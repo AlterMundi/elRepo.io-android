@@ -39,5 +39,5 @@ const { RetroShareIntent } = NativeModules;
     }
 
     export const service = function*() {
-        yield takeEvery('START_SERVICE', restartService);
+        yield takeEvery(['START_SERVICE', 'CHECK_LOGIN_FAILD'], restartService);
     }

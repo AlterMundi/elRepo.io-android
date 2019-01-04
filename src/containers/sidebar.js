@@ -22,16 +22,26 @@ class DrawerItems extends React.Component {
   };
 
   _setDrawerItem = (index,goTo) => {
-    this.setState({ drawerItemIndex: index })  
+      this.setState({ drawerItemIndex: index })  
+      Navigation.setStackRoot('App',{
+        sideMenu: {
+          center: { 
+            stack: {
+              children: [{
+              component: {
+                  name: goTo,
+              }
+            }]
+          }
+        }
+      }
+    })
     Navigation.mergeOptions(this.props.componentId, {
       sideMenu: {
         left: {
           visible: false
         }
       }
-    })
-    Navigation.push('App', {
-      component: { name: goTo },
     })
   };
 

@@ -1,7 +1,10 @@
 import { store } from '../redux/store';
 import { Handshake }  from 'react-native-handshake';
-import { NSD } from 'react-native-nsd';
+//import { NSD } from 'react-native-nsd';
+import { NativeModules } from 'react-native'
 import { DeviceEventEmitter } from 'react-native';
+
+const {NSD } = NativeModules
 
 export const userDiscovery = {
     startService: ({user, key})=> new Promise((res,rej) => {

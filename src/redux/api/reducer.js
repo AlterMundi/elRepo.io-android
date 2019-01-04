@@ -39,7 +39,7 @@ const initState = {
     files: [],
     fileInfo: {},
     peersStatus:  {},
-    status: 'Iniciando'
+    status: 'Iniciando servicio'
 }
 
 export default function apiReducer(state = initState, action) {
@@ -159,10 +159,9 @@ export default function apiReducer(state = initState, action) {
                     ...state.posts,
                     ...action.payload.posts.filter(post => state.posts.map(x=>x.key).indexOf(post.key) === -1 )
                         //.map(normalizePost)
-                        //.sort((a,b) => (a.mMeta.mPublishTs < b.mMeta.mPublishTs)? 1: -1 )
                     //...action.payload.posts
                      //.reduce((prev,act) => ({...prev,[act.mMeta.mMsgId]:act}), {})
-                ]
+                ].sort((a,b) => (a.mPublishTs < b.mPublishTs)? 1: -1 )
             }
 
         case 'LOAD_POST_EXTRA_SUCCESS':

@@ -30,9 +30,9 @@ function* channelMonitor() {
         // Get channels id
         let channels = []
         try {
-            const result  = yield call(apiCall,null,'/rsGxsChannels/getChannelsSummaries');
-            console.log({result});
-            channels = result.channels;
+            const {payload}  = yield call(apiCall,'LOADCHANNELS','/rsGxsChannels/getChannelsSummaries');
+            
+            channels = payload.channels;
             channels = channels.filter(channel => channel.mGroupName.indexOf('_repo') !== -1)
             //Check if user have your own channel
             const user = yield select(state => state.Api.user)
@@ -76,6 +76,25 @@ function* channelMonitor() {
             //yield call(wait, 30500)
         }
         yield call(wait, 30500)
+    }
+}
+
+
+function* reloadOwnChannels({type, payload}) {
+    yield call(wait, 1500)
+    try {
+        const user = yield select(state => state.Api.user)
+        const ownChannelPosts = yield call(apiCall,null,'/rsGxsChannels/getContentSummaries',{
+            channelId: user
+        });
+        
+        const normalizedPosts = ownChannelPosts.summaries
+        .map(normalizePost)
+        .sort((a,b) => (a.mPublishTs < b.mPublishTs)? 1: -1 )
+        yield put({type: 'LOADCHANNEL_POSTS_SUCCESS', payload: { posts: normalizedPosts }});
+    }
+    catch(e) {
+        console.warn('Error loading own channel',e)
     }
 }
 
@@ -130,7 +149,8 @@ function* loadExtraData({type, payload}) {
 
 export const channels = function*() {
     yield takeEvery('START_SYSTEM' , channelMonitor)
-    yield takeEvery('LOAD_POST_EXTRA', loadExtraData)
+    yield takeEvery('LOAD_POST_EXTRA', loadExtraData),
+    yield takeEvery(['RELOAD_OWN_CHANNEL', 'CREATE_POST_SUCCESS'], reloadOwnChannels)
     //yield takeEvery('LOADCHANNELS', loadChannels)
     //yield takeEvery('LOADCHANNELS_SUCCESS', initUserChannel)
     //yield takeEvery('LOADCHANNEL_EXTRADATA',  loadChannelsInfo)

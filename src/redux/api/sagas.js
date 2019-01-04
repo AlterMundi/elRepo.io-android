@@ -5,9 +5,9 @@ import config from '../../config';
 import httpApi from '../../httpApi';
 import { store } from '../../redux/store';
 import { apiCall } from '../../helpers/apiWrapper'
-import { userDiscovery } from '../../helpers/userDiscovery';
 import RNFS from 'react-native-fs';
-
+import {userDiscovery } from '../../helpers/userDiscovery';
+import { Navigation } from 'react-native-navigation';
 const apiHttp = httpApi(config.api.url,config.api.port);
 
 // wait :: Number -> Promise
@@ -61,6 +61,12 @@ function* login({type, payload}) {
     yield call(apiCall,actions.LOGIN,'/rsLoginHelper/attemptLogin', {
         account: payload.mLocationId,
         password: password
+    })
+}
+
+function* goHome() {
+    yield new Promise((res,rej) => {
+        Navigation
     })
 }
 
@@ -157,6 +163,7 @@ export const contentMagnament = function*() {
     
     yield takeEvery('START_SYSTEM', function*(){
         yield call(apiCall,'USER_FOLDERS','/rsFiles/getSharedDirectories')
+        yield call(apiCall,null, '/rsFiles/ForceDirectoryCheck');
     })  
 
     yield takeEvery(['CREATE_USER_CHANNEL'],function*({action, payload={}}){
@@ -194,6 +201,8 @@ export const contentMagnament = function*() {
                 mFiles: action.payload.files || []
             }
         })
+        //Reindex shared files
+        yield call(apiCall,null, '/rsFiles/ForceDirectoryCheck');
     })
 
     yield takeEvery('DOWNLOAD_FILE', function*({type, payload}){
@@ -236,7 +245,7 @@ export const contentMagnament = function*() {
 
     yield takeEvery('START_SYSTEM' , function*(){
         //yield put({ type: 'DOWNLOAD_STATUS' })
-        //yield put({type: 'ADD_FOLDER'})
+        yield put({type: 'ADD_FOLDER'})
         while(true) {
             const winner = yield race({
                 stopped: take('DONWLOAD_STATUS_STOP'),
@@ -258,14 +267,14 @@ export const contentMagnament = function*() {
 }
 
 export const discoveryService = function*() {
-    //  yield takeEvery('START_DISCOVERY',function*({type, payload}){
-    //      try {
-    //          const result = yield userDiscovery.startService(payload)
-    //          console.log({discovery: result})
-    //      } catch(e){
-    //          console.log({discovery: e})
-    //      }
-    //  })
+     yield takeEvery('START_DISCOVERY',function*({type, payload}){
+         try {
+             const result = yield userDiscovery.startService(payload)
+             console.log({discovery: result})
+         } catch(e){
+             console.log({discovery: e})
+         }
+     })
 
     let certs = [];
     yield takeEvery('USER_DISCOVERY_RESULT',function*({type, payload}){

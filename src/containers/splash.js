@@ -6,6 +6,9 @@ import apiActions from "../redux/api/actions"
 import { Navigation } from "react-native-navigation";
 import { ThemeWrapper } from "../components/wrapper";
 import { Button } from "react-native-paper";
+import { NativeModules } from 'react-native'
+
+const { RetroShareIntent } = NativeModules;
 
 const background = require('../assets/background.png');
 const logo = require('../assets/logo.png');
@@ -19,6 +22,7 @@ class SplashContainer extends Component {
         this.state = {
           _width: new Animated.Value(1),
           _rotation: new Animated.Value(0),
+          loading: false
         }
         this.spin = this.spin.bind(this)
     }
@@ -70,7 +74,6 @@ class SplashContainer extends Component {
     }
 
     goHome() {
-      setTimeout(()=>{
         Navigation.setRoot({
           root: {
               sideMenu: {
@@ -100,15 +103,20 @@ class SplashContainer extends Component {
               }
           }
       })
-      },10000)
     }
 
     componentWillReceiveProps(newProps) {
-      if(newProps.login === true) {
+      if(newProps.login === true && this.props.login === false) {
         this.goHome();
       }
     }
-  
+  reconect() {
+    this.setState({loading: true})
+    setTimeout(()=> {
+      this.props.reconect();
+      this.setState({loading: false});
+    }, 4000)
+  }
   render() {
     // const spin = this.state._rotation.interpolate({
     //   inputRange: [0,1],
@@ -127,7 +135,11 @@ class SplashContainer extends Component {
                    <Text style={{textAlign:'center'}}>{this.props.status}</Text>
                    {this.props.status === 'Error al intentar iniciar el servicio'
                     ? <Button 
-                      onPress={()=>this.props.reconect()}
+                      loading={this.state.loading}
+                      onPress={()=> !this.state.loading?RetroShareIntent.startService()
+                          .then(this.reconect.bind(this))
+                          .catch(()=> console.warn('Error starting RetroShare')): false
+                      }
                       mode="contained"
                       dark={true}
                       style={{marginTop: 30, width: 200, marginLeft: (window.width-200)/2}}>

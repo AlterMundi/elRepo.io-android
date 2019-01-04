@@ -1,16 +1,12 @@
 import { createStore, combineReducers, applyMiddleware, compose } from 'redux';
-import createHistory from 'history/createMemoryHistory';
-import { routerReducer, routerMiddleware } from 'react-router-redux';
 import createSagaMiddleware from 'redux-saga';
 import reducers from './reducers';
 import rootSaga from './sagas';
 import thunk from 'redux-thunk';
 import logger from 'redux-logger'
 
-const history = createHistory();
 const sagaMiddleware = createSagaMiddleware();
-const routeMiddleware = routerMiddleware(history);
-const middlewares = [thunk, sagaMiddleware, routeMiddleware];
+const middlewares = [thunk, sagaMiddleware];
 
 const composeEnhancers =
   typeof window === 'object' &&
@@ -26,11 +22,10 @@ const enhancer = composeEnhancers(
 
 const store = createStore(
   combineReducers({
-    ...reducers,
-    router: routerReducer
+    ...reducers
   }),
   enhancer
 );
 sagaMiddleware.run(rootSaga);
-store.dispatch({type:'CONNECT'})
-export { store, history };
+store.dispatch({type:'START_SERVICE'})
+export { store };

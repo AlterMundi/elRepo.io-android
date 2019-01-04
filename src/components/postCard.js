@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
-import { Title, Text, Card, Button } from 'react-native-paper';
-import { StyleSheet,  } from 'react-native';
+import { Title, Card, Button } from 'react-native-paper';
+import { StyleSheet, View  } from 'react-native';
 import { Navigation } from 'react-native-navigation';
 import ParsedText from 'react-native-parsed-text';
 import { connect } from 'react-redux';
@@ -58,18 +58,18 @@ const  removeHtml = (text='') =>  text
       return isDefined(post, 'mMsgName')? (
           <Card style={styles.card}>
                 { isDefined(post,'mThumbnail') && post.mThumbnail.mData !== '' && post.mThumbnail.mData.indexOf('base64') !== -1 ?(<Card.Cover source={{ uri: fixTh(post.mThumbnail.mData) }} />): false }
-                <Card.Content>
+                <Card.Content >
                     <Title>{post.mMsgName}</Title>
-                    {
-                      isDefined(post,'mMeta')?
-                          <ParsedText
-                            parse={[
-                              {pattern: /#(\w+)/,  style: styles.hashTag, onPress: this.handleHastag}
-                            ]}>
-                            {removeHtml(post.mMsg)}
-                          </ParsedText>
-                      : false
-                    }
+                          {isDefined(post,'mMeta')?
+                            <View style={{paddingBottom:10}}>
+                                <ParsedText
+                                  parse={[
+                                    {pattern: /\B(\#[0-9a-zA-ZzáàâãéèêíïóôõöúçñÁÀÂÃÉÈÍÏÓÔÕÖÚÇÑ]+\b)(?!;)/,  style: styles.hashTag, onPress: this.handleHastag}
+                                  ]}>
+                                  {removeHtml(post.mMsg)}
+                                </ParsedText>
+                            </View>
+                            : false }
                     {
                           isDefined(post, 'mFiles') && post.mFiles.length > 0
                               ? <FileList files={post.mFiles} onDownload={this.handleDownload}  />

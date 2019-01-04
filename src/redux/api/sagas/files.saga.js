@@ -4,6 +4,7 @@ import { apiCall } from '../../../helpers/apiWrapper'
 
 function* loadFiles({type, payload}) {
     try {
+        yield call(apiCall,null, '/rsFiles/ForceDirectoryCheck');
         const root  = yield call(apiCall,null,'/rsFiles/requestDirDetails', { handle: 0 })
         const sharedFolder = yield call(apiCall,null,'/rsFiles/requestDirDetails', { handle: root.details.children[0].handle })
         const sharedFiles = yield call(apiCall,null,'/rsFiles/requestDirDetails', { handle: sharedFolder.details.children[0].handle })

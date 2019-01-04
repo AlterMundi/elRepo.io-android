@@ -4,6 +4,7 @@ import { user, search, contentMagnament, discoveryService } from './api/sagas';
 import { peers } from './api/sagas/user.sagas'
 import { channels } from './api/sagas/channels.saga'
 import { files } from './api/sagas/files.saga'
+import { service } from './api/sagas/service.saga'
 export default function* rootSaga() {
     yield all([
     fork(user),
@@ -13,6 +14,7 @@ export default function* rootSaga() {
     fork(joinTiers),
     fork(contentMagnament),
     fork(discoveryService),
-    fork(files)
+    fork(files),
+    fork(service)
   ]);
 }

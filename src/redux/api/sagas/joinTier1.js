@@ -12,7 +12,7 @@ export const joinTiers = function*() {
         try {
             const result = yield fetch(action.payload.url+ '/rsPeers/acceptInvite', {
                 body: JSON.stringify({
-                    invite: action.payload.certADD_FRIEND
+                    invite: action.payload.cert
                 }),
                 headers: {'content-type': 'application/json'},
                 method: 'POST'

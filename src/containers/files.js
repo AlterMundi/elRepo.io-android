@@ -26,7 +26,7 @@ class FilesContainer extends Component {
 
   componentWillMount() {
     this.props.loadFiles();
-    this.loader = setInterval(this.props.loadFiles, 20000);
+    this.loader = setInterval(this.props.loadFiles, 5000);
   }
 
   componentWillUnmount() {

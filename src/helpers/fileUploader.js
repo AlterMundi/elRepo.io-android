@@ -1,7 +1,6 @@
 import { DocumentPicker, DocumentPickerUtil } from 'react-native-document-picker';
-import RNFS from 'react-native-fs';
 import RNGRP from 'react-native-get-real-path'
- const uuid = require('uuid/v4');
+const RNFS = require('react-native-fs');
 
 export const fileUploader = {
     openDialog: ()=> new Promise((res,rej) => {

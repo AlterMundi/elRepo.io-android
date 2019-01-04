@@ -1,9 +1,9 @@
 import React, { Component } from "react";
-import { View , ScrollView, StyleSheet} from "react-native";
+import { NativeModules, View , ScrollView, StyleSheet} from "react-native";
 import { connect } from "react-redux"
 import {  Text, Paragraph, Title, Card, Button } from 'react-native-paper';
 import { AppBar, } from "../components/appbar";
-import { NSD } from 'react-native-nsd';
+//import { NSD } from 'react-native-nsd';
 import { Handshake}  from 'react-native-handshake'
 import { ThemeWrapper } from '../components/wrapper';
 import { apiCall } from "../helpers/apiWrapper";
@@ -39,8 +39,8 @@ class StatusContainer extends Component {
                 </Card>
                 {/* <Button dark={true} style={styles.button} mode="contained" onPress={()=>NSD.discover()} >Discover</Button>
                 <Button dark={true} style={styles.button}  mode="contained" onPress={()=>{Handshake.startServer(this.props.cert)}}>Srart server</Button> */}
-                <Button dark={true} style={styles.button}  mode="contained" onPress={()=>{Handshake.stopServer()}}>Stop server</Button>
-                <Button dark={true} style={styles.button}  mode="contained" onPress={()=>NSD.stopDiscovery()}>Stop Discovery</Button>
+                {/* <Button dark={true} style={styles.button}  mode="contained" onPress={()=>{Handshake.stopServer()}}>Stop server</Button>
+                <Button dark={true} style={styles.button}  mode="contained" onPress={()=>NSD.stopDiscovery()}>Stop Discovery</Button> */}
                 <Button dark={true} style={styles.button}  mode="contained" onPress={()=>{
                   Promise.all(
                     this.props.downloading.map(file => apiCall(null, '/rsFiles/FileCancel', { hash: file.info.hash }))

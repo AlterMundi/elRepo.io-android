@@ -8,12 +8,7 @@ import { Navigation } from "react-native-navigation";
 import { PostCard }  from '../components/postCard';
 import { ThemeWrapper } from "../components/wrapper";
 
-import InfiniteScrollView from 'react-native-infinite-scroll-view';
-
-
 const background = require('../assets/background.png');
-
-const validsPosts = (post) => post.mMeta.mMsgName !== '' && post.mMsg !== ''
 
 class HomeContainer extends Component {
     constructor(props) {
@@ -34,7 +29,7 @@ class HomeContainer extends Component {
   }
 
   addPosts() {
-    this.setState({until: this.state.until + 5})
+    this.setState({until: this.props.posts.length + 5})
     console.log(this.state.until)
   }
 
@@ -44,7 +39,13 @@ class HomeContainer extends Component {
       component: { name: 'elRepoIO.search' },
     })
   }
-  
+
+  componentWillReceiveProps(newProps) {
+    if (newProps.posts.length !== this.props.posts.length) {
+      this.forceUpdate();
+    }
+  }
+
   render() {
     return (
       <ThemeWrapper>
@@ -52,8 +53,7 @@ class HomeContainer extends Component {
         <ImageBackground  resizeMode="repeat" source={background}   style={{width: '100%', height: '100%'}}>
                    
           <FlatList 
-            data={this.props.posts(this.state.until)}
-            on
+            data={this.props.posts.filter((_,key)=> key <= this.state.until)}
             onEndReached={this.addPosts}
             style={styles.container}
             renderItem={ element => 
@@ -90,7 +90,7 @@ const styles = StyleSheet.create({
 
 export const Home = connect(
   (state) => ({
-    posts: (until)=> state.Api.posts.filter((_,key)=> key <= until)
+    posts: state.Api.posts || []
   }),
   (dispatch) => ({
     searchContent: bindActionCreators(apiActions.newSearch, dispatch)

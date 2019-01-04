@@ -102,11 +102,20 @@ android {
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         missingDimensionStrategy "RNN.reactNativeVersion", "reactNative57"
-        vectorDrawables.useSupportLibrary = true
-        versionCode 1
-        versionName "1.0"
+        versionCode 5
+        versionName "0.1.1"
         ndk {
             abiFilters "armeabi-v7a", "x86"
+        }
+    }
+    signingConfigs {
+        release {
+            if (project.hasProperty('MYAPP_RELEASE_STORE_FILE')) {
+                storeFile file(MYAPP_RELEASE_STORE_FILE)
+                storePassword MYAPP_RELEASE_STORE_PASSWORD
+                keyAlias MYAPP_RELEASE_KEY_ALIAS
+                keyPassword MYAPP_RELEASE_KEY_PASSWORD
+            }
         }
     }
     compileOptions {
@@ -119,16 +128,6 @@ android {
             enable enableSeparateBuildPerCPUArchitecture
             universalApk false  // If true, also generate a universal APK
             include "armeabi-v7a", "x86"
-        }
-    }
-    signingConfigs {
-        release {
-            if (project.hasProperty('MYAPP_RELEASE_STORE_FILE')) {
-                storeFile file(MYAPP_RELEASE_STORE_FILE)
-                storePassword MYAPP_RELEASE_STORE_PASSWORD
-                keyAlias MYAPP_RELEASE_KEY_ALIAS
-                keyPassword MYAPP_RELEASE_KEY_PASSWORD
-            }
         }
     }
     buildTypes {
@@ -153,20 +152,29 @@ android {
     }
 }
 
+configurations.all {
+    resolutionStrategy.eachDependency { DependencyResolveDetails details ->
+        def requested = details.requested
+        if (requested.group == 'com.android.support' && requested.name != 'multidex') {
+            details.useVersion "${rootProject.ext.supportLibVersion}"
+        }
+    }
+}
+
 dependencies {
-    implementation project(':react-native-file-viewer')
-    implementation project(':react-native-get-real-path')
-    implementation project(':react-native-document-picker')
+    implementation project(':react-native-fs')
+    implementation project(':react-native-handshake')
+    implementation project(':react-native-nsd')
     implementation project(':react-native-image-crop-picker')
+    implementation project(':react-native-get-real-path')
+    implementation project(':react-native-file-viewer')
+    implementation project(':react-native-document-picker')
+    implementation 'com.android.support:design:25.4.0'
+    implementation project(':react-native-vector-icons')
     implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation "com.android.support:appcompat-v7:${rootProject.ext.supportLibVersion}"
     implementation "com.facebook.react:react-native:+"  // From node_modules
     implementation project(':react-native-navigation')
-    implementation 'com.android.support:design:27.1.1'
-    implementation project(':react-native-fs')
-    implementation project(':react-native-nsd')
-    implementation project(':react-native-handshake')
-    implementation project(':react-native-vector-icons')
 }
 
 // Run this once to be able to run the application with BUCK

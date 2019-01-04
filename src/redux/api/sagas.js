@@ -18,7 +18,7 @@ const wait = ms => (
 );
 
 function connect(){
-    apiCall('CHECK_LOGGIN', '/rsLoginHelper/isLoggedIn');
+    apiCall('CHECK_LOGIN', '/rsLoginHelper/isLoggedIn');
 }
 
 function queryLocations(){
@@ -89,7 +89,7 @@ function* triggerStartSystem() {
 
 export const user = function*() {    
     yield takeEvery('CONNECT', connect)
-    yield takeEvery([   actions.CREATE_ACCOUNT_SUCCESS,'CHECK_LOGGIN_SUCCESS','QUERY_LOCATIONS'], queryLocations) 
+    yield takeEvery([   actions.CREATE_ACCOUNT_SUCCESS,'CHECK_LOGIN_SUCCESS','QUERY_LOCATIONS'], queryLocations) 
     yield takeEvery('QUERY_LOCATIONS_SUCCESS', loginOrCreate)
     yield takeEvery(actions.CREATE_ACCOUNT, createAccount)
     yield takeEvery(actions.LOGIN, login)
@@ -102,32 +102,32 @@ export const search = function*(){
     yield takeEvery('START_SYSTEM' , function*(){
     })
 
-    let resultSocketsRemote = null;
+    // let resultSocketsRemote = null;
 
-    //START SEARCH  REMOTE
-    yield takeEvery('SEARCH_NEW', function*(action) {
-        const data = {
-            matchString: action.payload
-        };
+    // //START SEARCH  REMOTE
+    // yield takeEvery('SEARCH_NEW', function*(action) {
+    //     const data = {
+    //         matchString: action.payload
+    //     };
         
-        if(resultSocketsRemote !== null) {
-            resultSocketsRemote.close();
-            resultSocketsRemote = null;
-        }
+    //     if(resultSocketsRemote !== null) {
+    //         resultSocketsRemote.close();
+    //         resultSocketsRemote = null;
+    //     }
 
-        resultSocketsRemote = yield apiHttp.send('stream', {
-                type: 'SEARCH_NEW',
-                payload: {
-                    path: '/rsGxsChannels/turtleSearchRequest',
-                    data
-                }
-            })
+    //     resultSocketsRemote = yield apiHttp.send('stream', {
+    //             type: 'SEARCH_NEW',
+    //             payload: {
+    //                 path: '/rsGxsChannels/turtleSearchRequest',
+    //                 data
+    //             }
+    //         })
 
-        resultSocketsRemote.addEventListener('message', (eventData) => {
-            if(typeof eventData.data.retval === 'undefined')
-                store.dispatch({type: 'SEARCH_GET_RESULTS_SUCCESS', payload: JSON.parse(eventData.data)})
-        })
-    })
+    //     resultSocketsRemote.addEventListener('message', (eventData) => {
+    //         if(typeof eventData.data.retval === 'undefined')
+    //             store.dispatch({type: 'SEARCH_GET_RESULTS_SUCCESS', payload: JSON.parse(eventData.data)})
+    //     })
+    // })
 
 
     let resultSocketsLocal = null;

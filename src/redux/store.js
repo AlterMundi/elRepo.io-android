@@ -27,5 +27,5 @@ const store = createStore(
   enhancer
 );
 sagaMiddleware.run(rootSaga);
-store.dispatch({type:'START_SERVICE'})
+store.dispatch({type:'CONNECT'})
 export { store };

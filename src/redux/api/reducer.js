@@ -1,4 +1,5 @@
 import { actions } from "./actions";
+import md5 from 'blueimp-md5';
 
 const infoToObj = (channelsArray) => {
     return channelsArray
@@ -29,7 +30,7 @@ const initState = {
     channels: [],
     cert: null,
     search: null,
-    results: {},
+    results: [],
     channelsInfo: {},
     posts: [],
     promiscuous: true,
@@ -51,12 +52,12 @@ export default function apiReducer(state = initState, action) {
                 runstate: true,
                 status: 'Todo listo! Arrancando...'
             }
-        case 'CHECK_LOGGIN_FAILD':
+        case 'CHECK_LOGIN_FAILD':
             return {
                 ...state,
                 status: 'Error al intentar iniciar el servicio'
             }
-        case 'CHECK_LOGGIN_SUCCESS':
+        case 'CHECK_LOGIN_SUCCESS':
             return {
                 ...state,
                 runstate: action.payload.retval
@@ -82,24 +83,21 @@ export default function apiReducer(state = initState, action) {
                 ...state,
                 status: 'Tratando de iniciar sesión'
             }
-        case 'PEERS_INFO_SUCCESS': {
+        case 'PEERS_INFO_SUCCESS': 
             return {
                 ...state,
                 peers: action.payload
             }
-        }
-        case 'CHANGE_PEER_STATUS': {
+        case 'CHANGE_PEER_STATUS': 
             return {
                 ...state,
                 peersStatus: { ...state.peersStatus, ...{[action.payload.id]: action.payload.status}}
             }
-        }
-        case 'CHANGE_PEERS_STATUS': {
+        case 'CHANGE_PEERS_STATUS': 
             return {
                 ...state,
                 peersStatus: action.payload.reduce((prev,act)=> ({...prev, [act.id]: act.status}), state.peersStatus)
             }
-        }
         case 'QUERY_LOCATIONS_SUCCESS':
             return {
                 ...state,
@@ -122,16 +120,14 @@ export default function apiReducer(state = initState, action) {
                 ...state,
                 channels: onlyRepoChannels(action.payload.channels || [])
             }
-        case 'LOADCHANNEL_EXTRADATA_SUCCESS': {
+        case 'LOADCHANNEL_EXTRADATA_SUCCESS': 
             return {
                 ...state,
                 channelsInfo: {
                     ...state.channelsInfo,
                     ...infoToObj(action.payload.channelsInfo)
                 }
-            }
-        }
-        
+        }    
         case 'GET_SELF_CERT_SUCCESS': 
             return {
                 ...state,
@@ -141,16 +137,19 @@ export default function apiReducer(state = initState, action) {
             return {
                 ...state,
                 search: action.payload,
-                results:{}
+                results: []
             }
         case 'SEARCH_GET_RESULTS_SUCCESS':
             if(typeof action.payload.result === 'undefined') { return state };
+            if(typeof action.payload.retval !== 'undefined') { return state };
+
+            action.payload.result.key = md5(JSON.stringify(action.payload.result))
             return {
                 ...state,
-                results: {
-                    ...state.results,
-                    [action.payload.result.mGroupId]: action.payload.result
-                }
+                results: [
+                        ...state.results,
+                        state.results.map(x=>x.key).indexOf(action.payload.result.key) === -1? {...action.payload.result}: undefined
+                ].sort((a,b) => (a.mPublishTs < b.mPublishTs)? 1: -1 )
             }
         case 'LOADCHANNEL_POSTS_SUCCESS':
             return {

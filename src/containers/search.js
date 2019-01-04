@@ -64,7 +64,7 @@ const styles = StyleSheet.create({
 
 export const Search = connect(
   (state) => ({
-    results: state.Api.posts,
+    results: state.Api.results || [],
     search: state.Api.search || ''
   }),
   (dispatch) => ({

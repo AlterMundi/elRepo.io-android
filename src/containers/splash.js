@@ -79,6 +79,7 @@ class SplashContainer extends Component {
               sideMenu: {
                   id: "SideMenu",
                   right: {
+                      visible: false,
                       component: {
                           id: "DownloadStatus",
                           name: "elRepoIO.downloadStatus"

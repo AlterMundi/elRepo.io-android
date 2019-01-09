@@ -15,12 +15,12 @@ const first = (data=[],def) => data.reduce((p,a)=> a, def)
 class AvatarItem extends React.Component {
     constructor(props) {
         super(props);
-        this.init = false;
+        this.state = {init: false}
     }
     componentWillReceiveProps(newProps) {
-        if( this.init === false && typeof newProps.channel(this.props.id).mDescription === 'undefined') {
+        if( this.state.init === false && typeof newProps.channel(this.props.id).mDescription === 'undefined') {
+            this.setState({init: true})
             this.props.getChannelExtraData(this.props.id)
-            this.init = true;
         }
     }
     render() {

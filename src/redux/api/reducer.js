@@ -31,7 +31,7 @@ const initState = {
     cert: null,
     search: null,
     results: [],
-    channelsInfo: {},
+    channelsInfo: [],
     posts: [],
     promiscuous: true,
     folders: [],
@@ -123,11 +123,11 @@ export default function apiReducer(state = initState, action) {
         case 'LOADCHANNEL_EXTRADATA_SUCCESS': 
             return {
                 ...state,
-                channelsInfo: {
+                channelsInfo: [
                     ...state.channelsInfo,
-                    ...infoToObj(action.payload.channelsInfo)
-                }
-        }    
+                    ...action.payload.channelsInfo.filter(channel => state.channelsInfo.map(x=>x.mMeta.mGroupId).indexOf(channel.mMeta.mGroupId) === -1 )
+                ]
+            } 
         case 'GET_SELF_CERT_SUCCESS': 
             return {
                 ...state,

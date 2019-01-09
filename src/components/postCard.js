@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Title, Card, Button } from 'react-native-paper';
+import { Title, Card, Button, Text } from 'react-native-paper';
 import { StyleSheet, View  } from 'react-native';
 import { Navigation } from 'react-native-navigation';
 import ParsedText from 'react-native-parsed-text';
@@ -7,6 +7,9 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { FileList }  from '../components/fileItem'
 import apiActions from '../redux/api/actions'
+import moment from 'moment/min/moment-with-locales' 
+import { Avatar } from './avatar';
+moment.locale('es');
 
 
 const fixTh = (base) => base
@@ -56,6 +59,10 @@ const  removeHtml = (text='') =>  text
       const {post} = this.props;
 
       return isDefined(post, 'mMsgName')? (
+        <View>
+          <Avatar id={post.mGroupId}>
+            <Text style={styles.date}>{moment(post.mPublishTs*1000).fromNow() }</Text>
+          </Avatar>
           <Card style={styles.card}>
                 { isDefined(post,'mThumbnail') && post.mThumbnail.mData !== '' && post.mThumbnail.mData.indexOf('base64') !== -1 ?(<Card.Cover source={{ uri: fixTh(post.mThumbnail.mData) }} />): false }
                 <Card.Content >
@@ -85,18 +92,24 @@ const  removeHtml = (text='') =>  text
                       </Card.Actions>
                     : false
                 }
-            </Card> )
+            </Card></View>)
             : false
     }
   }
 
 const styles = StyleSheet.create({
       card: {
-        minHeight: 30
+        minHeight: 30,
+        marginBottom: 30
       },
       hashTag: {
         color: 'blue',
         textDecorationLine: 'underline',
+      },
+      date: {
+        color: "#444",
+        marginLeft: 0,
+        marginBottom: 5,
       }
 })
 

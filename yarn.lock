@@ -2612,6 +2612,11 @@ iconv-lite@0.4.24, iconv-lite@^0.4.17, iconv-lite@^0.4.4, iconv-lite@~0.4.13:
   dependencies:
     safer-buffer ">= 2.1.2 < 3"
 
+identicon.js@^2.3.3:
+  version "2.3.3"
+  resolved "https://registry.yarnpkg.com/identicon.js/-/identicon.js-2.3.3.tgz#c505b8d60ecc6ea13bbd991a33964c44c1ad60a1"
+  integrity sha512-/qgOkXKZ7YbeCYbawJ9uQQ3XJ3uBg9VDpvHjabCAPp6aRMhjLaFAxG90+1TxzrhKaj6AYpVGrx6UXQfQA41UEA==
+
 ignore-walk@^3.0.1:
   version "3.0.1"
   resolved "https://registry.yarnpkg.com/ignore-walk/-/ignore-walk-3.0.1.tgz#a83e62e7d272ac0e3b551aaa82831a19b69f82f8"
@@ -4084,6 +4089,11 @@ mkdirp@^0.5.0, mkdirp@^0.5.1:
   dependencies:
     minimist "0.0.8"
 
+moment@^2.23.0:
+  version "2.23.0"
+  resolved "https://registry.yarnpkg.com/moment/-/moment-2.23.0.tgz#759ea491ac97d54bac5ad776996e2a58cc1bc225"
+  integrity sha512-3IE39bHVqFbWWaPOMHZF98Q9c3LDKGTmypMiTM2QygGXXElkFWIH7GxfmlwmY2vwa+wmNsoYZmG2iusf1ZjJoA==
+
 morgan@^1.9.0:
   version "1.9.1"
   resolved "https://registry.yarnpkg.com/morgan/-/morgan-1.9.1.tgz#0a8d16734a1d9afbc824b99df87e738e58e2da59"
@@ -4803,10 +4813,10 @@ react-native-navigation@^2.0.2641:
     react-lifecycles-compat "2.0.0"
     tslib "1.9.3"
 
-react-native-nsd@^0.0.3:
-  version "0.0.3"
-  resolved "https://registry.yarnpkg.com/react-native-nsd/-/react-native-nsd-0.0.3.tgz#7af54fef8bd5be0501f3eed2e584bb56702a4196"
-  integrity sha512-qBjqwkhsIL74m2jrRU17ACTeMyyasZlRC4eFQ1X55s8CuT/6i523y6aGMXfB2s7/9gpCdGiipm+YkwgHZl1yLg==
+react-native-nsd@^0.0.4:
+  version "0.0.4"
+  resolved "https://registry.yarnpkg.com/react-native-nsd/-/react-native-nsd-0.0.4.tgz#b450975dca89e1adc1f5200d9abc62eb8fabcd4d"
+  integrity sha512-Qr+mIv7vm7BHVX2o6LXw/ejhuOmmRoUpwlm5Aurac7tKYFx/0rCUyyn7RzAMiWfmf2Lfoql5VGREcJU9KYyReQ==
 
 react-native-paper@^2.4.0:
   version "2.4.0"

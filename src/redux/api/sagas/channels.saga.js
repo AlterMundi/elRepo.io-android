@@ -153,6 +153,6 @@ export const channels = function*() {
     yield takeEvery(['RELOAD_OWN_CHANNEL', 'CREATE_POST_SUCCESS'], reloadOwnChannels)
     //yield takeEvery('LOADCHANNELS', loadChannels)
     //yield takeEvery('LOADCHANNELS_SUCCESS', initUserChannel)
-    //yield takeEvery('LOADCHANNEL_EXTRADATA',  loadChannelsInfo)
+    yield takeEvery('LOADCHANNEL_EXTRADATA',  loadChannelsInfo)
     //yield takeEvery('LOADCHANNEL_CONTENT', loadChannelsPost)
 }

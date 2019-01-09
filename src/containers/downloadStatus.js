@@ -7,10 +7,12 @@ import {
   Drawer,
   withTheme,
   ProgressBar,
+  Button,
 } from 'react-native-paper';
 import { ThemeWrapper } from '../components/wrapper'
 import {connect } from 'react-redux';
 import config from '../config';
+import FileViewer from 'react-native-file-viewer';
 
 
 const calcProgress = (chunks =[]) => {
@@ -21,16 +23,24 @@ const calcProgress = (chunks =[]) => {
 
 const getStatus = (download) => {
   if (calcProgress(download.chunks) === 1) {
-    return 'Descargado';
+    return (
+      <Button
+        onPress={()=>
+          FileViewer
+            .open(download.info.path+'/'+download.info.fname)
+            .then(console.log)
+            .catch(console.warn) }>
+      Abrir
+    </Button>);
   }
   else if  (download.active_chunks.length > 0) {
-    return 'Descargando';
+    return <Text>Descargando</Text>;
   }
   else if (download.compressed_peer_availability_maps > 0) {
-    return 'Estableciendo conexiones'
+    return <Text>Estableciendo conexiones</Text>
   }
   else {
-    return 'Esperando pares'
+    return <Text>Esperando pares</Text>
   }
 }
 
@@ -48,7 +58,7 @@ class DownloadItems extends React.Component {
             <View key={props.info.hash} style={{backgroundColor: 'rgba(245,245,245,0.8)', padding: 10, borderRadius: 4, marginBottom: 10}}>
                 <Text>{props.info.fname}</Text>
                 <ProgressBar progress={calcProgress(props.chunks)}/>
-                <Text>{getStatus(props)}</Text>
+                {getStatus(props)}
               </View>
           ))}
         </Drawer.Section>

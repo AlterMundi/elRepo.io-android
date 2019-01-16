@@ -41,9 +41,27 @@ export class AppBar extends Component {
         sideMenu: {
             left: {
                 visible: true
+            },
+            right: {
+              visible: false
             }
           }
       })
+      return true;
+    }
+
+    _onDownloads() {
+      Navigation.mergeOptions("SideMenu", {
+        sideMenu: {
+            right: {
+                visible: true
+            },
+            left: {
+              visible: false
+            }
+          }
+      })
+      return true;
     }
 
   render() {
@@ -51,13 +69,14 @@ export class AppBar extends Component {
     return (
       <View>
         <Appbar.Header dark={true}>
+        <Appbar.Action icon="menu" onPress={this._onMore} />
           <Appbar.Content
             title={this.props.title || 'elRepo.io'}
             subtitle={this.props.subtitle}
           >
           </Appbar.Content>
           {this.props.searchIcon?<Appbar.Action icon="search" onPress={this._toggleSearch} />: false }
-          <Appbar.Action icon="more-vert" onPress={this._onMore} />
+          <Appbar.Action icon="more-vert" onPress={this._onDownloads} />
         </Appbar.Header>
         { this.state.showSearch === true
           ? <Searchbar

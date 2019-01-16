@@ -74,36 +74,7 @@ class SplashContainer extends Component {
     }
 
     goHome() {
-        Navigation.setRoot({
-          root: {
-              sideMenu: {
-                  id: "SideMenu",
-                  right: {
-                      visible: false,
-                      component: {
-                          id: "DownloadStatus",
-                          name: "elRepoIO.downloadStatus"
-                      }
-                    },
-                  left: {
-                    component: {
-                        id: "Drawer",
-                        name: "navigation.elRepoIO.drawer"
-                    }
-                  },
-                  center: {
-                      stack: {
-                          id:'App',
-                          children: [{
-                              component: {
-                                  name: "elRepoIO.home",
-                              }
-                          }]
-                      }, 
-                  }
-              }
-          }
-      })
+        
     }
 
     componentWillReceiveProps(newProps) {

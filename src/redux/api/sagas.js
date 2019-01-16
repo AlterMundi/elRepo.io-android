@@ -8,6 +8,28 @@ import { apiCall } from '../../helpers/apiWrapper'
 import RNFS from 'react-native-fs';
 import {userDiscovery } from '../../helpers/userDiscovery';
 import { Navigation } from 'react-native-navigation';
+import { PermissionsAndroid } from 'react-native';
+
+ function* requestCameraPermission() {
+  try {
+    const granted = yield PermissionsAndroid.request(
+      PermissionsAndroid.PERMISSIONS.CAMERA,
+      {
+        'title': 'Cool Photo App Camera Permission',
+        'message': 'Cool Photo App needs access to your camera ' +
+                   'so you can take awesome pictures.'
+      }
+    )
+    if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+      console.log("You can use the camera")
+    } else {
+      console.log("Camera permission denied")
+    }
+  } catch (err) {
+    console.warn(err)
+  }
+}
+
 const apiHttp = httpApi(config.api.url,config.api.port);
 
 // wait :: Number -> Promise
@@ -16,6 +38,8 @@ const wait = ms => (
         setTimeout(() => resolve(), ms)
     })
 );
+
+const isUserChannels = userLocation =>channel => channel.mSubscribeFlags === 7 && channel.mGroupName === userLocation
 
 function connect(){
     apiCall('CHECK_LOGIN', '/rsLoginHelper/isLoggedIn');
@@ -66,7 +90,38 @@ function* login({type, payload}) {
 
 function* goHome() {
     yield new Promise((res,rej) => {
-        Navigation
+        Navigation.setRoot({
+            root: {
+                sideMenu: {
+                    id: "SideMenu",
+                    right: {
+                        visible: false,
+                        component: {
+                            id: "DownloadStatus",
+                            name: "elRepoIO.downloadStatus"
+                        }
+                      },
+                    left: {
+                      component: {
+                          id: "Drawer",
+                          name: "navigation.elRepoIO.drawer"
+                      }
+                    },
+                    center: {
+                        stack: {
+                            id:'App',
+                            children: [{
+                                component: {
+                                    name: "elRepoIO.home",
+                                }
+                            }]
+                        }, 
+                    }
+                }
+            }
+        })
+        requestCameraPermission()
+        res();
     })
 }
 
@@ -84,6 +139,7 @@ function* startDiscovery(action){
 }
 
 function* triggerStartSystem() {
+
     yield put({type: 'START_SYSTEM'})
 }
 
@@ -96,6 +152,7 @@ export const user = function*() {
     yield takeEvery(['START_SYSTEM','GET_SELF_CERT'], getCertificate)
     yield takeEvery('GET_SELF_CERT_SUCCESS', startDiscovery)
     yield takeEvery([actions.LOGIN_SUCCESS], triggerStartSystem)
+    yield takeEvery([actions.LOGIN_SUCCESS], goHome)
 }
 
 export const search = function*(){
@@ -180,6 +237,26 @@ export const contentMagnament = function*() {
             }
         };
         yield call(apiCall,'CREATE_USER_CHANNEL','/rsGxsChannels/createChannel',newGroupData)
+    })
+
+    yield takeEvery('UPDATE_USER_CHANNEL',function*({type, payload}){
+        const userLocation = yield select(state=> state.Api.user.mLocationName)
+        const userChannels = yield select(state => state.Api.channels.filter(isUserChannels(userLocation)))
+
+        const groupsData = yield call(apiCall, null,'/rsGxsChannels/getChannelsInfo',{
+            chanIds: userChannels.map(x => x.mGroupId)
+        })
+
+        const newGroupsData = groupsData.channelsInfo.map(group => ({
+            channel: {
+                ...group,
+                mImage: {mData: payload.image || "" },
+                mDescription:payload.name? payload.name: group.mDescription
+            }
+        }));
+
+        //console.log('AAAAA',newGroupsData)
+        yield all(newGroupsData.map(group => call(apiCall, 'UPDATE_USER_CHANNEL', '/rsGxsChannels/editChannel', group)));
     })
 
 

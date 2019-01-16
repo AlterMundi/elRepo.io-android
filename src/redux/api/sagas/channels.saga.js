@@ -23,6 +23,7 @@ const wait = ms => (
     })
 );
 
+const isUserChannels = userLocation =>channel => channel.mSubscribeFlags === 7 && channel.mGroupName === userLocation
 
 function* channelMonitor() {
 
@@ -102,9 +103,9 @@ function* loadChannels () {
     yield call(apiCall,'LOADCHANNELS','/rsGxsChannels/getChannelsSummaries');
 }
 
-function* loadChannelsInfo (action) {
+function* loadChannelsInfo ({type, payload}) {
     yield call(apiCall,'LOADCHANNEL_EXTRADATA','/rsGxsChannels/getChannelsInfo',{
-        chanIds: action.payload.channels
+        chanIds: payload.channels
     })
 }
 
@@ -147,12 +148,31 @@ function* loadExtraData({type, payload}) {
     }
 }
 
+const onlyRepoChannels = (channels=[])  => channels.filter(channel => channel.mGroupName.indexOf('_repo') !== -1)
+
+function* checkExtraInfo({type, payload}) {
+
+    const userLocation = yield select(state => state.Api.user.mLocationName)
+    const channelsInfoIds = yield select(state => state.Api.channelsInfo.map(x => x.mMeta.mGroupId))
+    
+    //Get user channels and check extra data
+    const userChannels = onlyRepoChannels(payload.channels)
+        .filter(isUserChannels(userLocation))
+        .map(channel => channel.mGroupId)
+        .filter(groupId => channelsInfoIds.indexOf(groupId) === -1);
+
+    if(userChannels.length > 0) {
+        yield loadChannelsInfo({payload: { channels: userChannels}})
+    }
+  
+}
+
 export const channels = function*() {
     yield takeEvery('START_SYSTEM' , channelMonitor)
     yield takeEvery('LOAD_POST_EXTRA', loadExtraData),
-    yield takeEvery(['RELOAD_OWN_CHANNEL', 'CREATE_POST_SUCCESS'], reloadOwnChannels)
+    yield takeEvery(['RELOAD_OWN_CHANNEL'], reloadOwnChannels)
     //yield takeEvery('LOADCHANNELS', loadChannels)
-    //yield takeEvery('LOADCHANNELS_SUCCESS', initUserChannel)
+    yield takeEvery('LOADCHANNELS_SUCCESS', checkExtraInfo)
     yield takeEvery('LOADCHANNEL_EXTRADATA',  loadChannelsInfo)
     //yield takeEvery('LOADCHANNEL_CONTENT', loadChannelsPost)
 }

@@ -7,6 +7,7 @@ import { Files } from "./containers/files";
 import { FileInfo} from "./containers/fileInfo"
 import { DownloadStatus } from "./containers/downloadStatus";
 import { Splash } from "./containers/splash";
+import {ChangeProfile}  from './containers/changeProfile';
 
 export const Pages = [
     { component: AppBar, id: 'elRepoIO.appBar', title: 'appbar'},
@@ -18,4 +19,5 @@ export const Pages = [
     { component: FileInfo, id: 'elRepoIO.fileInfo', title: 'File Information'},
     { component: Files, id: 'elRepoIO.fileList', title: 'File List'},
     { component: DownloadStatus, id: 'elRepoIO.downloadStatus', title: 'Download Status'},
+    { component: ChangeProfile, id: 'elRepoIO.changeProfile', title: 'Change Profile'}
 ]

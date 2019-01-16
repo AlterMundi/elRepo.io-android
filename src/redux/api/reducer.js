@@ -18,7 +18,7 @@ const normalizePost = (post) => ({
     mMeta: {
         mMsgId: post.mMeta.mMsgId,
         mMsgName: post.mMeta.mMsgName,
-        mPublishTs: post.mMeta.mPublishTs
+        mPublishTs: post.mMeta.mPublishTs || Date.now() 
     },
     mThumbnail: post.mThumbnail || {mData: ""}
 })
@@ -156,13 +156,26 @@ export default function apiReducer(state = initState, action) {
                 ...state,
                 posts: [
                     ...state.posts,
-                    ...action.payload.posts.filter(post => state.posts.map(x=>x.key).indexOf(post.key) === -1 )
+                    ...action.payload.posts.filter(post => state.posts.map(x=>x.key).indexOf(post.key) === -1 ),
                         //.map(normalizePost)
                     //...action.payload.posts
                      //.reduce((prev,act) => ({...prev,[act.mMeta.mMsgId]:act}), {})
                 ].sort((a,b) => (a.mPublishTs < b.mPublishTs)? 1: -1 )
             }
-
+        case 'CREATE_POST_SUCCESS':
+            return {
+                ...state,
+                posts: [
+                    ...state.posts,
+                    { 
+                        key: action.payload.post.mMsgId,
+                        ...action.payload.post,
+                        ...action.payload.post.mMeta,
+                        mPublishTs: Date.now() / 100,
+                        reload: true
+                    }
+                ].sort((a,b) => (a.mPublishTs < b.mPublishTs)? 1: -1 )
+            }
         case 'LOAD_POST_EXTRA_SUCCESS':
             return {
                 ...state,

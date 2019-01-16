@@ -24,22 +24,24 @@ class AvatarItem extends React.Component {
         }
     }
     render() {
+        const size = this.props.big? 100: 50; 
         const channel = this.props.channel(this.props.id);
         return (
-            <View style={{display:'flex', flex:1, flexDirection:"row"}}>
-                <View style={styles.avatar}>
-                    {typeof channel.mImage !== "undefined" && typeof channel.mImage.mData !== ""
-                        ? <ImageBackground source={{uri: channel.mImage.mData}}/>
-                        : <ImageBackground  style={{width: 50, height: 50}} source={{uri: getBase64Image(this.props.id)}} />
+            <View style={{display:'flex', flex:1, flexDirection:"row", ...(typeof this.props.style !== 'undefined'? this.props.style: {})}}>
+                <View style={{...styles.avatar, width: size, height: size}}>
+                    {typeof channel.mImage !== "undefined" && channel.mImage.mData !== ""
+                        ? <ImageBackground style={{borderRadius: this.props.round? size: 4, width: size, height: size}} source={{uri: 'data:image/png;base64,'+ (channel.mImage.mData.split('/9j/')[1]? '/9j/'+channel.mImage.mData.split('/9j/')[1] : channel.mImage.mData )}}/>
+                        : <ImageBackground  style={{borderRadius: this.props.round? size: 4, width: size, height: size}} source={{uri: getBase64Image(this.props.id, size)}} />
                     }
                 </View>
-                <View style={{marginLeft: 10, marginTop:3}}>
-                    {typeof channel.mDescription !== 'undefined' && typeof channel.mDescription !== ""
+                {this.props.onlyImage === true ? false:
+                 (<View style={{marginLeft: 10, marginTop:3}}>
+                    {typeof channel.mDescription !== 'undefined' && channel.mDescription !== "" && channel.mDescription.length < 80
                         ? <Text style={styles.name}>{channel.mDescription}</Text>
-                        :  <Text style={styles.name}>{this.props.channelName(this.props.id)}</Text>
+                        :  <Text style={styles.name}>{this.props.channelName(this.props.id)} - {this.props.id}</Text>
                     }
                     {this.props.children}
-                </View>
+                </View>)}
             </View>
         )
     }
@@ -47,7 +49,7 @@ class AvatarItem extends React.Component {
 
 export const Avatar = connect(
     state => ({
-        channel: (id) => first(state.Api.channelsInfo.filter(x => x.mGroupId === id),{}),
+        channel: (id) => first(state.Api.channelsInfo.filter(x => x.mMeta.mGroupId === id),{}),
         channelName: (id) => first(state.Api.channels.filter(x => x.mGroupId === id),{}).mGroupName
     }),
     dispatch => ({
@@ -56,10 +58,6 @@ export const Avatar = connect(
 
 const styles = StyleSheet.create({
     avatar: {
-        width: 50,
-        height: 50,
-        borderRadius: 5,
-        backgroundColor: "#ccc",
         marginBottom: 5
       },
       name: {

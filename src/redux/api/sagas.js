@@ -13,17 +13,17 @@ import { PermissionsAndroid } from 'react-native';
  function* requestCameraPermission() {
   try {
     const granted = yield PermissionsAndroid.request(
-      PermissionsAndroid.PERMISSIONS.CAMERA,
+      PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
       {
-        'title': 'Cool Photo App Camera Permission',
-        'message': 'Cool Photo App needs access to your camera ' +
-                   'so you can take awesome pictures.'
+        'title': 'elRepo.io necesita permisos de almacenamiento',
+        'message': 'Es requerido para poder realizar descargas ' +
+                   'y compartir los archivos que tu quieras.'
       }
     )
     if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-      console.log("You can use the camera")
+      console.log("You can use the storage")
     } else {
-      console.log("Camera permission denied")
+      console.log("Storage permission denied")
     }
   } catch (err) {
     console.warn(err)

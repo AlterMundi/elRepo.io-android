@@ -25,61 +25,64 @@ const wait = ms => (
 
 const isUserChannels = userLocation =>channel => channel.mSubscribeFlags === 7 && channel.mGroupName === userLocation
 
+function* reloadAllChannels() {
+    let channels = []
+    try {
+        const {payload}  = yield call(apiCall,'LOADCHANNELS','/rsGxsChannels/getChannelsSummaries');
+        
+        channels = payload.channels;
+        channels = channels.filter(channel => channel.mGroupName.indexOf('_repo') !== -1)
+        //Check if user have your own channel
+        const user = yield select(state => state.Api.user)
+        if(!channels || channels.length === 0) {
+            yield put({type: 'CREATE_USER_CHANNEL'})
+        }
+
+        //Autosubscribe to elrepo.io users channels
+        let a = 0;
+        while(typeof channels !== 'undefined' && channels.length > a) {
+            if(
+                //And im not subscribed
+                (channels[a].mSubscribeFlags === 8 ) &&
+                //And not is my channel
+                (channels[a].mGroupName !== user.mLocationName)
+            ) {
+                apiCall(null, '/rsGxsChannels/subscribeToChannel',{
+                    channelId: channels[a].mGroupId,
+                    subscribe: true
+                })
+            }
+            a++;
+        }
+        
+        //Load posts
+        const allChannelsPosts = yield all(channels.map(channel => call(apiCall,null,'/rsGxsChannels/getContentSummaries',{
+            channelId: channel.mGroupId
+        })));
+        
+        const normalizedPosts = allChannelsPosts
+        .reduce((prev,act) => prev.concat(act.summaries),[])
+         .map(normalizePost)
+        .sort((a,b) => (a.mPublishTs < b.mPublishTs)? 1: -1 )
+        console.log(normalizedPosts)
+        yield put({type: 'LOADCHANNEL_POSTS_SUCCESS', payload: { posts: normalizedPosts }});
+        
+        // Wait and run
+    } 
+    catch(e) {
+        console.log('channels', e)
+        //yield call(wait, 30500)
+    }
+}
+
 function* channelMonitor() {
 
     while(true) {
         // Get channels id
-        let channels = []
-        try {
-            const {payload}  = yield call(apiCall,'LOADCHANNELS','/rsGxsChannels/getChannelsSummaries');
-            
-            channels = payload.channels;
-            channels = channels.filter(channel => channel.mGroupName.indexOf('_repo') !== -1)
-            //Check if user have your own channel
-            const user = yield select(state => state.Api.user)
-            if(!channels || channels.length === 0) {
-                yield put({type: 'CREATE_USER_CHANNEL'})
-            }
-
-            //Autosubscribe to elrepo.io users channels
-            let a = 0;
-            while(typeof channels !== 'undefined' && channels.length > a) {
-                if(
-                    //And im not subscribed
-                    (channels[a].mSubscribeFlags === 8 ) &&
-                    //And not is my channel
-                    (channels[a].mGroupName !== user.mLocationName)
-                ) {
-                    apiCall(null, '/rsGxsChannels/subscribeToChannel',{
-                        channelId: channels[a].mGroupId,
-                        subscribe: true
-                    })
-                }
-                a++;
-            }
-            
-            //Load posts
-            const allChannelsPosts = yield all(channels.map(channel => call(apiCall,null,'/rsGxsChannels/getContentSummaries',{
-                channelId: channel.mGroupId
-            })));
-            
-            const normalizedPosts = allChannelsPosts
-            .reduce((prev,act) => prev.concat(act.summaries),[])
-             .map(normalizePost)
-            .sort((a,b) => (a.mPublishTs < b.mPublishTs)? 1: -1 )
-            console.log(normalizedPosts)
-            yield put({type: 'LOADCHANNEL_POSTS_SUCCESS', payload: { posts: normalizedPosts }});
-            
-            // Wait and run
-        } 
-        catch(e) {
-            console.log('channels', e)
-            //yield call(wait, 30500)
-        }
+        yield reloadAllChannels()
         yield call(wait, 30500)
     }
 }
-
 
 function* reloadOwnChannels({type, payload}) {
     yield call(wait, 1500)
@@ -171,6 +174,7 @@ export const channels = function*() {
     yield takeEvery('START_SYSTEM' , channelMonitor)
     yield takeEvery('LOAD_POST_EXTRA', loadExtraData),
     yield takeEvery(['RELOAD_OWN_CHANNEL'], reloadOwnChannels)
+    yield takeEvery(['RELOAD_ALL_CHANNELS'], reloadAllChannels)
     //yield takeEvery('LOADCHANNELS', loadChannels)
     yield takeEvery('LOADCHANNELS_SUCCESS', checkExtraInfo)
     yield takeEvery('LOADCHANNEL_EXTRADATA',  loadChannelsInfo)

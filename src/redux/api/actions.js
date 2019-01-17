@@ -120,6 +120,10 @@ export const actions = {
 
     getFileInfo: (mFile) => dispatch => {
         dispatch({type: actions.GET_FILE_INFO, payload: mFile})
+    },
+
+    reloadAllChannels: () => dispatch => {
+        dispatch({ type: 'RELOAD_ALL_CHANNELS' })
     }
 }
 

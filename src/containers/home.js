@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { FlatList, View, ScrollView, StyleSheet, ImageBackground, Button} from "react-native";
+import { FlatList, View, RefreshControl, StyleSheet, ImageBackground } from "react-native";
 import { connect } from "react-redux"
 import { AppBar } from "../components/appbar";
 import { bindActionCreators } from "redux";
@@ -18,6 +18,7 @@ class HomeContainer extends Component {
         }
         this.addPosts = this.addPosts.bind(this)
         this.handleSearch = this.handleSearch.bind(this);
+        this._onRefresh = this._onRefresh.bind(this);
     }
   static options (passProps) {
       return {
@@ -46,6 +47,13 @@ class HomeContainer extends Component {
     }
   }
 
+  _onRefresh() {
+    this.props.reloadChannels();
+    setTimeout(()=>{
+      this.setState({refreshing: false})
+    }, 2000)
+  }
+
   render() {
     return (
       <ThemeWrapper>
@@ -53,6 +61,13 @@ class HomeContainer extends Component {
         <ImageBackground  resizeMode="repeat" source={background}   style={{width: '100%', height: '100%'}}>
                    
           <FlatList 
+            refreshing={this.state.refreshing}
+            refreshControl={
+              <RefreshControl
+                refreshing={this.state.refreshing}
+                onRefresh={this._onRefresh}
+              />
+            }
             data={this.props.posts.filter((_,key)=> key <= this.state.until)}
             onEndReached={this.addPosts}
             style={styles.container}
@@ -72,10 +87,10 @@ class HomeContainer extends Component {
 const styles = StyleSheet.create({
     container: {
       flex: 1,
-      paddingTop: 10,
+      marginTop: 10,
       paddingBottom: 10,
       marginBottom: 57,
-      paddingLeft: 15,
+      marginLeft: 15,
       paddingRight: 15,
     },
     post: {
@@ -93,6 +108,7 @@ export const Home = connect(
     posts: state.Api.posts || []
   }),
   (dispatch) => ({
+    reloadChannels: bindActionCreators(apiActions.reloadAllChannels, dispatch),
     searchContent: bindActionCreators(apiActions.newSearch, dispatch)
 })
   

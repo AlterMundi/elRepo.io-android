@@ -30,15 +30,22 @@ const  removeHtml = (text='') =>  text
     constructor(props) {
       super(props);
       this.state = {
-        asked: false
-      }
-      this.handleHastag = this.handleHastag.bind(this);
-      this.handleDownload = this.handleDownload.bind(this);
+        asked: false,
+        init: false
     }
-   
-    handleHastag(hashtag){
-      this.props.searchContent(hashtag);
-      Navigation.push('App', {
+    this.handleHastag = this.handleHastag.bind(this);
+    this.handleDownload = this.handleDownload.bind(this);
+  }
+  
+  componentWillMount() {
+      if( this.state.asked === false && !isDefined(this.props.post,'mMeta')) {
+          this.askContent();
+      }
+  }
+
+  handleHastag(hashtag){
+    this.props.searchContent(hashtag);
+    Navigation.push('App', {
         component: { name: 'elRepoIO.search' },
       })
     }
@@ -86,8 +93,8 @@ const  removeHtml = (text='') =>  text
                 {
                   !isDefined(post,'mMeta')
                     ? <Card.Actions>
-                        <Button  loading={this.state.asked} onPress={()=> !this.state.asked ? this.askContent.call(this): false }>
-                          Ver
+                        <Button  loading={this.state.asked}>
+                          Cargando...
                         </Button>
                       </Card.Actions>
                     : false

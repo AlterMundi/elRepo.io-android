@@ -8,7 +8,7 @@ const api = (url, port) => {
 
     const logRequest = (type, data) => {
         //Only for debug
-        //console.log('REQUEST', type, data)
+        console.log('REQUEST', type, data)
     }
 
     const pullRequest = ()  => {

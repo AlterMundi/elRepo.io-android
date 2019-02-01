@@ -1,6 +1,8 @@
 import { call, all, select, takeEvery, take, put, race } from 'redux-saga/effects';
 import { apiCall } from '../../../helpers/apiWrapper'
 
+const channelRefreshTime = 30000
+
 const normalizePost = (post) => ({
     ...post,
     key: post.mMsgId,
@@ -51,6 +53,8 @@ function* reloadAllChannels() {
                     channelId: channels[a].mGroupId,
                     subscribe: true
                 })
+                yield call(wait, channelRefreshTime / channels.length)
+                
             }
             a++;
         }
@@ -80,7 +84,7 @@ function* channelMonitor() {
     while(true) {
         // Get channels id
         yield reloadAllChannels()
-        yield call(wait, 30500)
+        yield call(wait, channelRefreshTime)
     }
 }
 

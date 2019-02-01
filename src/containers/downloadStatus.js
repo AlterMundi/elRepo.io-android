@@ -15,13 +15,13 @@ import config from '../config';
 import FileViewer from 'react-native-file-viewer';
 
 
-const calcProgress = (chunks =[]) => {
+export const calcProgress = (chunks =[]) => {
   const total = chunks.length;
   const ready = chunks.filter(x => x === 2).length
   return ready === 0? 0: ready / total; 
 }
 
-const getStatus = (download) => {
+export const getStatus = (download) => {
   if (calcProgress(download.chunks) === 1) {
     return (
       <Button

@@ -9,6 +9,8 @@ import apiActions from "../redux/api/actions"
 import filesize from 'filesize'
 import { Navigation } from "react-native-navigation";
 import { ThemeWrapper } from '../components/wrapper'
+import { calcProgress } from './downloadStatus';
+import { apiCall } from "../helpers/apiWrapper";
 
 const getPostsByFileHash = (state) => {
     const hasFile = file => file.mHash === state.Api.fileInfo.mHash;
@@ -16,6 +18,20 @@ const getPostsByFileHash = (state) => {
     return post
         .filter(post => typeof post.mFiles !== 'undefined')
         .filter(post => post.mFiles.filter(hasFile).length > 0)
+}
+
+
+// 1 > open / 2 > donwloading / 3 download / 0 loading
+const calcStatus = (fileInfo) => {
+    console.log('AAAAA',fileInfo)
+    return fileInfo.info
+        ? (calcProgress(fileInfo.info.chunks) === 1
+            ? 1
+            : fileInfo.info.chunks.length > 0
+                ? 2
+                 : 3
+             )
+        : 0
 }
 
 class FileInfoContainer extends Component {
@@ -39,22 +55,43 @@ class FileInfoContainer extends Component {
       })
   }
 
+  delete( file ) {
+
+  }
+
+  open( file ) {
+      
+  }
+
+  stopDownload( file ) {
+    this.props.cancelDownload(file.mHash)
+  }
+
   render() {
     const {fileInfo, posts} = this.props;
+    const status = [
+        { text: 'Cargando estado...', action: ()=>null},
+        { text: 'Abrir', action: (file)=> ()=> this.open(file)}, 
+        { text: 'Cancelar Descarga', action: (file) => ()=> this.stopDownload(file)},
+        {text: 'Descargar', action: (file)=> ()=>  this.download(file)},
+    ]
     return (
           <ThemeWrapper style={styles.container}>
               <AppBar title={'elRepo.io'} subtitle={'Información del archivo'} />
-                <ScrollView style={styles.container}>
-                    <View style={styles.content}>
-                        <Headline>File</Headline>
-                        <Text>Nombre {fileInfo.mName}</Text>
-                        <Text>Id {fileInfo.mHash}</Text>
+              <View style={styles.container}>
+                    <View style={{...styles.content, ...{ padding: 10, paddingBottom: 15, backgroundColor: '#ffffff'}}}>
+                        <Headline>Archivo</Headline>
+                        <Text>Nombre: {fileInfo.mName}</Text>
                         <Text>Tamaño {filesize(fileInfo.mSize)}</Text>
-                        <Button mode="contained" onPress={()=> this.download(fileInfo)}>Descargar</Button>
-                        {/* <Headline>Publicaciones relacionadas</Headline>
-                        {posts.map(post => <PostCard post={post} key={post.id} />)} */}
+                        <Button style ={styles.button} mode="contained" dark={true} onPress={status[calcStatus(fileInfo)].action(fileInfo)}>{status[calcStatus(fileInfo)].text}</Button>
                     </View>
-                </ScrollView>
+                    <Headline style={styles.headers}>Publicaciones relacionadas</Headline>
+                    <ScrollView style={{...styles.content, ...{ backgroundColor: 'rgb(240,240,240)'}}}>
+                        <View style={{...styles.content, ...{padding: 10}}}>
+                            {posts.map(post => <PostCard post={post} key={post.key} />)}
+                        </View>
+                    </ScrollView>
+                </View>
           </ThemeWrapper>
     );
   }
@@ -64,8 +101,17 @@ const styles = StyleSheet.create({
     container: {
       flex: 1
     },
+    headers: {
+        marginTop: 15,
+        marginLeft: 10,
+        marginBottom: 20
+
+    },
+    button: {
+        marginTop: 10
+    },
     content: {
-      padding: 4,
+      padding: 5,
     }
   });
   
@@ -77,6 +123,7 @@ export const FileInfo = connect(
     posts: getPostsByFileHash(state)
   }),
   (dispatch) => ({
+    cancelDownload: (hash) => dispatch({ type: 'CANCEL_DOWNLOAD', payload: {hash, reload: true}}),
     downloadFile: bindActionCreators(apiActions.download, dispatch)
 })
   

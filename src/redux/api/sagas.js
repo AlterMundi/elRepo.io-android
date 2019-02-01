@@ -301,7 +301,8 @@ export const contentMagnament = function*() {
     })
 
     yield takeEvery(actions.GET_FILE_INFO, function*({type, payload}){
-        yield call(apiCall,actions.GET_FILE_INFO, '/rsFiles/alreadyHaveFile', { hash: payload.mHash})
+        const result = yield call(apiCall,null, '/rsFiles/FileDownloadChunksDetails', { hash: payload.mHash})
+        yield put({ type: actions.GET_FILE_INFO_SUCCESS, payload: {...result, ...payload}})
     })
 
     yield takeEvery([actions.DOWNLOAD_STATUS, 'DOWNLOAD_FILE_SUCCESS'], function*({type, payload}){

@@ -193,23 +193,35 @@ export default function apiReducer(state = initState, action) {
                 ...state,
                 files: action.payload.files || []
             }
+        case actions.GET_FILE_INFO_SUCCESS: 
+            return {
+                ...state,
+                fileInfo: action.payload
+            }
         case actions.GET_FILE_INFO: 
             return {
                 ...state,
                 fileInfo: action.payload
             }
-        case actions: GET_FILE_STATUS_SUCCESS:
+        case actions.GET_FILE_STATUS_SUCCESS:
             return {
                 ...state,
                 files: {
                     ...state.files,
-                    [action.payload.info.hash]: action.payload.info
+                    [action.payload.info.hash]: action.payload.info 
                 }
             }
         case 'DOWNLOADING':
             return {
                 ...state,
-                downloading: action.payload
+                downloading: action.payload,
+                fileInfo: state.fileInfo? {
+                    ...state.fileInfo,
+                    info: {
+                        ...state.fileInfo,
+                        ...action.payload.filter(file => file.info.hash === state.fileInfo.mHash).reduce((p,a)=> a, {chunks: []})
+                    }
+                }: {}
             }
         default:
             return state;

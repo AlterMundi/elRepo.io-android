@@ -14,7 +14,9 @@ class HomeContainer extends Component {
     constructor(props) {
         super(props);
         this.state = {
-          until: 5
+          until: 5,
+          flatListReady:false,
+          ready: false
         }
         this.addPosts = this.addPosts.bind(this)
         this.handleSearch = this.handleSearch.bind(this);
@@ -30,8 +32,10 @@ class HomeContainer extends Component {
   }
 
   addPosts() {
-    this.setState({until: this.props.posts.length + 5})
-    console.log(this.state.until)
+    if(this.state.flatListReady === false){ return null}
+    this.setState({
+      until: this.state.until + 2
+    })
   }
 
   handleSearch(value){
@@ -43,7 +47,7 @@ class HomeContainer extends Component {
 
   componentWillReceiveProps(newProps) {
     if (newProps.posts.length !== this.props.posts.length) {
-      this.forceUpdate();
+      //this.forceUpdate();
     }
   }
 
@@ -53,23 +57,35 @@ class HomeContainer extends Component {
       this.setState({refreshing: false})
     }, 2000)
   }
+  
+  _scrolled(){
+    if(this.state.flatListReady === true) { return null }
+    this.setState({flatListReady:true})
+  }
+
+  componentWillMount() {
+    this.setState({ready: false})
+    setTimeout(()=>this.setState({ready:true}), 400)
+  }
+
 
   render() {
     return (
       <ThemeWrapper>
         <AppBar title={'elRepo.io'} subtitle={'Publicaciones'} searchIcon={true} onSearch={this.handleSearch} />
         <ImageBackground  resizeMode="repeat" source={background}   style={{width: '100%', height: '100%'}}>
-                   
           <FlatList 
             refreshing={this.state.refreshing}
             refreshControl={
               <RefreshControl
-                refreshing={this.state.refreshing}
+                refreshing={this.props.posts.length === 0 || this.state.ready === false || this.state.refreshing}
                 onRefresh={this._onRefresh}
               />
             }
-            data={this.props.posts.filter((_,key)=> key <= this.state.until)}
+            data={this.state.ready? this.props.posts.filter((_,key)=> key <= this.state.until): []}
+            onEndReachedThreshold={0.3}
             onEndReached={this.addPosts}
+            onScroll={this._scrolled.bind(this)}
             style={styles.container}
             renderItem={ element => 
                 <View style={styles.post} key={element.key}>

@@ -33,7 +33,9 @@ function* reloadAllChannels() {
         const {payload}  = yield call(apiCall,'LOADCHANNELS','/rsGxsChannels/getChannelsSummaries');
         
         channels = payload.channels;
-        channels = channels.filter(channel => channel.mGroupName.indexOf('_repo') !== -1)
+        channels = channels
+            .filter(channel => channel.mGroupName.indexOf('_repo') !== -1)
+            .sort((a,b) => (a.mLastPost < b.mLastPost)? 1: -1 )
         //Check if user have your own channel
         const user = yield select(state => state.Api.user)
         if(!channels || channels.length === 0) {
@@ -42,6 +44,8 @@ function* reloadAllChannels() {
 
         //Autosubscribe to elrepo.io users channels
         let a = 0;
+        let allChannelsPosts = []
+        
         while(typeof channels !== 'undefined' && channels.length > a) {
             if(
                 //And im not subscribed
@@ -49,27 +53,32 @@ function* reloadAllChannels() {
                 //And not is my channel
                 (channels[a].mGroupName !== user.mLocationName)
             ) {
-                apiCall(null, '/rsGxsChannels/subscribeToChannel',{
+                yield apiCall(null, '/rsGxsChannels/subscribeToChannel',{
                     channelId: channels[a].mGroupId,
                     subscribe: true
                 })
-                yield call(wait, channelRefreshTime / channels.length)
-                
             }
+            let posts = yield call(apiCall,null,'/rsGxsChannels/getContentSummaries',{
+                channelId: channels[a].mGroupId
+            })
+            allChannelsPosts = allChannelsPosts
+                .concat(posts.summaries)
+                .map(normalizePost)
+                .sort((a,b) => (a.mPublishTs < b.mPublishTs)? 1: -1 )
+
+            yield put({type: 'LOADCHANNEL_POSTS_SUCCESS', payload: { posts: allChannelsPosts }});
+                
+            console.log('AAAAAAA',allChannelsPosts)
+
+            yield call(wait,  Math.round(channelRefreshTime / 500))
             a++;
-        }
+        } ;
         
-        //Load posts
-        const allChannelsPosts = yield all(channels.map(channel => call(apiCall,null,'/rsGxsChannels/getContentSummaries',{
-            channelId: channel.mGroupId
-        })));
-        
-        const normalizedPosts = allChannelsPosts
-        .reduce((prev,act) => prev.concat(act.summaries),[])
-         .map(normalizePost)
-        .sort((a,b) => (a.mPublishTs < b.mPublishTs)? 1: -1 )
-        console.log(normalizedPosts)
-        yield put({type: 'LOADCHANNEL_POSTS_SUCCESS', payload: { posts: normalizedPosts }});
+        // const normalizedPosts = allChannelsPosts
+        // //.reduce((prev,act) => prev.concat(act.summaries),[])
+        //  .map(normalizePost)
+        // .sort((a,b) => (a.mPublishTs < b.mPublishTs)? 1: -1 )
+        // console.log(normalizedPosts)
         
         // Wait and run
     } 
@@ -129,22 +138,24 @@ function* initUserChannel (action) {
     if(action.payload.channels.length === 0) {
         //Create user channel if not exist
         yield put({type: 'CREATE_USER_CHANNEL'})
-    while(action.payload.channels.length > a) {
-        if(
-            //If is open repo channel
-            (action.payload.channels[a].mGroupName.indexOf('_repo') !== -1) &&
-            //And im not subscribed
-            (action.payload.channels[a].mSubscribeFlags === 8 ) &&
-            //And not is my channel
-            (action.payload.channels[a].mGroupName !== user.mLocationName)
-        ) {
-            apiCall(null, '/rsGxsChannels/subscribeToChannel',{
-                channelId: action.payload.channels[a].mGroupId,
-                subscribe: true
-            })
-        }
-        a++;
     }
+    else {
+        while(action.payload.channels.length > a) {
+            if(
+                //If is open repo channel
+                (action.payload.channels[a].mGroupName.indexOf('_repo') !== -1) &&
+                //And im not subscribed
+                (action.payload.channels[a].mSubscribeFlags === 8 ) &&
+                //And not is my channel
+                (action.payload.channels[a].mGroupName !== user.mLocationName)
+            ) {
+                apiCall(null, '/rsGxsChannels/subscribeToChannel',{
+                    channelId: action.payload.channels[a].mGroupId,
+                    subscribe: true
+                })
+            }
+            a++;
+        }
     }
 }
 

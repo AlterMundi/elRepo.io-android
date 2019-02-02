@@ -23,8 +23,8 @@ function* loadPeers() {
             );
             yield put({type: 'PEERS_INFO_SUCCESS', payload: peersInfo.map(x => x.det)})
         }
-        //Wait 10 seconds  and run
-        yield call (wait, 10000)
+        //Wait 60 seconds  and re-run
+        yield call (wait, 60000)
     }
 }
 

@@ -30,8 +30,9 @@ const isUserChannels = userLocation =>channel => channel.mSubscribeFlags === 7 &
 function* reloadAllChannels() {
     let channels = []
     try {
+        const actualChannelsState = yield select(state => state.Api.channels)
         const {payload}  = yield call(apiCall,'LOADCHANNELS','/rsGxsChannels/getChannelsSummaries');
-        
+
         channels = payload.channels;
         channels = channels
             .filter(channel => channel.mGroupName.indexOf('_repo') !== -1)
@@ -41,10 +42,21 @@ function* reloadAllChannels() {
         if(!channels || channels.length === 0) {
             yield put({type: 'CREATE_USER_CHANNEL'})
         }
+        
+        channels = channels
+        //Filter if not have posts
+        .filter(ch => ch.mLastPost !== 0)
+        //Filter if mLastPost is the same   
+        .filter(ch => {
+            const lastTime = actualChannelsState
+            .filter(aC => aC.mGroupId === ch.mGroupId)
+            .reduce((p,a)=>a, {mPublishTs: 0})
+            return lastTime.mPublishTs < ch.mPublishTs
+        })
+        console.log('AAAA',{actualChannelsState, channels})
 
         //Autosubscribe to elrepo.io users channels
         let a = 0;
-        let allChannelsPosts = []
         
         while(typeof channels !== 'undefined' && channels.length > a) {
             if(
@@ -61,15 +73,11 @@ function* reloadAllChannels() {
             let posts = yield call(apiCall,null,'/rsGxsChannels/getContentSummaries',{
                 channelId: channels[a].mGroupId
             })
-            allChannelsPosts = allChannelsPosts
+            let allChannelsPosts = []
                 .concat(posts.summaries)
                 .map(normalizePost)
-                .sort((a,b) => (a.mPublishTs < b.mPublishTs)? 1: -1 )
 
             yield put({type: 'LOADCHANNEL_POSTS_SUCCESS', payload: { posts: allChannelsPosts }});
-                
-            console.log('AAAAAAA',allChannelsPosts)
-
             yield call(wait,  Math.round(channelRefreshTime / 500))
             a++;
         } ;

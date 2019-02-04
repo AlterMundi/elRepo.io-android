@@ -41,6 +41,7 @@ const  removeHtml = (text='') =>  text
       if( this.state.asked === false && !isDefined(this.props.post,'mMeta')) {
           this.askContent();
       }
+      this.setState({time: moment(this.props.post.mPublishTs*1000).fromNow() });
   }
 
   handleHastag(hashtag){
@@ -68,8 +69,8 @@ const  removeHtml = (text='') =>  text
       return isDefined(post, 'mMsgName')? (
         <View>
           <Avatar id={post.mGroupId}>
-            <Text style={styles.date}>{moment(post.mPublishTs*1000).fromNow() }</Text>
-          </Avatar>
+            <Text style={styles.date}>{this.state.time}</Text>
+          </Avatar> 
           <Card style={styles.card}>
                 { isDefined(post,'mThumbnail') && post.mThumbnail.mData !== '' && post.mThumbnail.mData.indexOf('base64') !== -1 ?(<Card.Cover source={{ uri: fixTh(post.mThumbnail.mData) }} />): false }
                 <Card.Content >
